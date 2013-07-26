@@ -37,9 +37,27 @@
 		<id>ttbox-public-releases</id>
 		<url>https://raw.github.com/gabuzomeu/maven-repo/master/releases</url>
 	    </repository>
-	</repositories>
+	   <!-- osmdroid --> 
+      <repository>
+         <id>osmdroid-repository</id>
+         <name>OSMDroid maven repository</name>
+         <url>https://oss.sonatype.org/content/groups/public/</url>
+         <snapshots>
+            <enabled>false</enabled>
+         </snapshots>
+      </repository>
+      
+   	</repositories>
 
 
+   <pluginRepositories>
+      <pluginRepository>
+         <id>oss.sonatype.org-jayway-releases</id>
+         <name>Jayway OpenSource RELEASE on Sonatype.org</name>
+         <url>https://oss.sonatype.org/content/repositories/jayway-releases/</url>
+      </pluginRepository>
+   </pluginRepositories>
+ 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<!-- Android -->
@@ -125,24 +143,6 @@
       </plugins>
    </build>
 
-   <pluginRepositories>
-      <pluginRepository>
-         <id>oss.sonatype.org-jayway-releases</id>
-         <name>Jayway OpenSource RELEASE on Sonatype.org</name>
-         <url>https://oss.sonatype.org/content/repositories/jayway-releases/</url>
-      </pluginRepository>
-   </pluginRepositories>
-
-   <repositories>
-      <repository>
-         <id>osmdroid-repository</id>
-         <name>OSMDroid maven repository</name>
-         <url>https://oss.sonatype.org/content/groups/public/</url>
-         <snapshots>
-            <enabled>false</enabled>
-         </snapshots>
-      </repository>
-   </repositories>
 
    <profiles>
       <!-- https://github.com/jayway/android-maven-plugin-samples/blob/stable/morseflash/morseflash-app/pom.xml -->
