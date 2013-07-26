@@ -3,11 +3,7 @@
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <parent>
-      <groupId>eu.ttbox.android</groupId>
-      <artifactId>android-root</artifactId>
-      <version>0.1.2</version>
-   </parent>
+  
 
    <groupId>eu.ttbox.android.osm</groupId>
    <artifactId>osm-lib</artifactId>
@@ -15,20 +11,55 @@
    <packaging>apklib</packaging>
 
    <name>OSM Libs</name>
+ 
+  
+    <scm>  
+       <url>https://github.com/gabuzomeu/osmLib</url>
+       <connection>scm:git:git@github.com:gabuzomeu/osmLib.git</connection>
+       <developerConnection>scm:git:git@github.com:gabuzomeu/osmLib.git</developerConnection>
+       <tag>HEAD</tag>
+    </scm>
 
-   <!-- <properties> -->
-   <!-- <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> -->
-   <!-- Android -->
-   <!-- <android.version>4.1.2_r3</android.version> 2.3.3 -->
-   <!-- <google.maps.version>16_r3</google.maps.version> -->
-   <!-- Osm -->
-   <!-- <osmdroid.version>3.0.8</osmdroid.version> -->
-   <!-- <slf4j-android.version>1.6.1-RC1</slf4j-android.version> -->
-   <!-- Release -->
-   <!-- <android-maven-plugin.version>3.4.0</android-maven-plugin.version> -->
-   <!-- <android.sdk.platform>16</android.sdk.platform> -->
-   <!-- <sign.alias>android</sign.alias> -->
-   <!-- </properties> -->
+
+    <distributionManagement>
+        <repository>
+            <id>ttbox-repository-release</id>
+            <url>${ttbox.repo.url}/releases/</url>
+        </repository>  
+    </distributionManagement>
+
+	<repositories>
+	    <repository>
+		<id>ttbox-public-third-parties</id>
+		<url>https://raw.github.com/gabuzomeu/maven-repo/master/third-parties/</url>
+	    </repository>
+	    <repository>
+		<id>ttbox-public-releases</id>
+		<url>https://raw.github.com/gabuzomeu/maven-repo/master/releases</url>
+	    </repository>
+	</repositories>
+
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- Android -->
+		<android.version>4.3_r1</android.version> <!-- 4.2.2_r2, 4.1.2_r3, 2.3.3 -->
+		<!-- Osm -->
+		<osmdroid.version>3.0.10</osmdroid.version> <!--  3.0.9-20121109, 3.0.10 -->
+		<slf4j-android.version>1.6.1-RC1</slf4j-android.version>
+
+		<!-- Plugins -->
+		<maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+		<maven-jarsigner-plugin.version>1.2</maven-jarsigner-plugin.version>
+		<build-helper-maven-plugin.version>1.8</build-helper-maven-plugin.version>
+
+		<!-- Release -->
+        <maven-release-plugin.version>2.4.1</maven-release-plugin.version>
+		<android-maven-plugin.version>3.6.0</android-maven-plugin.version> <!-- 3.5.1 -->
+		<android.sdk.platform>18</android.sdk.platform>
+		<sign.alias>android</sign.alias>
+
+    </properties>
 
    <dependencies>
       <!-- Android -->
@@ -59,11 +90,7 @@
          <artifactId>osmdroid-third-party</artifactId>
          <version>${osmdroid.version}</version>
       </dependency>
-      <!-- <dependency> -->
-      <!-- <groupId>org.osmdroid</groupId> -->
-      <!-- <artifactId>osmdroid-packager</artifactId> -->
-      <!-- <version>${osmdroid.version}</version> -->
-      <!-- </dependency> -->
+     
       <dependency>
          <groupId>org.slf4j</groupId>
          <artifactId>slf4j-android</artifactId>
@@ -71,8 +98,8 @@
       </dependency>
 
 
-   </dependencies>
-   <!-- <modules> <module>tests</module> </modules> -->
+   </dependencies> 
+   
    <build>
       <finalName>${project.artifactId}</finalName>
       <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
