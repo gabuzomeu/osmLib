@@ -2,8 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/map_mylocation_dialogView"
     style="@style/mylocation_dialog_bubbleBackground"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:gravity="center"
     android:orientation="vertical" >
 
@@ -19,6 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/map_mylocation_dialogView_provider"
         android:layout_centerHorizontal="true"
+        android:gravity="center"
         android:orientation="horizontal" >
 
         <TextView
@@ -84,8 +85,6 @@
     <ImageView
         android:id="@+id/map_mylocation_dialogView_gpsStatus_image"
         style="@style/mylocation_dialog_text"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
         android:layout_above="@id/map_mylocation_dialogView_block_coord"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
