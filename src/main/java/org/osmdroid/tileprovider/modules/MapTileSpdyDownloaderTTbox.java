@@ -174,10 +174,11 @@ public class MapTileSpdyDownloaderTTbox extends MapTileModuleProviderBase {
 				Log.i(TAG, String.format("Http Download by URL : %s",  tileURLString));
 				URL url = new URL(tileURLString);
 				HttpURLConnection urlConnection =  client.open(url);
+                urlConnection.addRequestProperty("Cache-Control", "no-cache");
 				urlConnection.setRequestMethod("GET");
-				urlConnection.setReadTimeout(CONNECTION_TIMEOUT);
-				urlConnection.setConnectTimeout(CONNECTION_TIMEOUT);
-				urlConnection.addRequestProperty(HTTP_HEADER_ACCEPT_ENCODING, "gzip");
+			//	urlConnection.setReadTimeout(CONNECTION_TIMEOUT);
+			//	urlConnection.setConnectTimeout(CONNECTION_TIMEOUT);
+			//	urlConnection.addRequestProperty(HTTP_HEADER_ACCEPT_ENCODING, "gzip");
 				try {
 					int responseCode = urlConnection.getResponseCode();
 					if (responseCode !=  HttpURLConnection.HTTP_OK) {
@@ -185,30 +186,35 @@ public class MapTileSpdyDownloaderTTbox extends MapTileModuleProviderBase {
 						return null;
 					} 
 					in = new BufferedInputStream(urlConnection.getInputStream(), 1240);
-					
-					final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
+
+					final ByteArrayOutputStream dataStream = new ByteArrayOutputStream(4096);
 					out = new BufferedOutputStream(dataStream, StreamUtils.IO_BUFFER_SIZE);
-					String contentEncoding = urlConnection.getHeaderField(HTTP_HEADER_CONTENT_ENCODING);
-					if (contentEncoding != null && contentEncoding.equalsIgnoreCase("gzip")) {
-						Log.i(TAG, String.format("Http Response header Content-Encoding : %s",  contentEncoding));
-						in = new GZIPInputStream(in, 1024);
-					}  
-					
+				//	String contentEncoding = urlConnection.getHeaderField(HTTP_HEADER_CONTENT_ENCODING);
+				//	if (contentEncoding != null && contentEncoding.equalsIgnoreCase("gzip")) {
+				//		Log.i(TAG, String.format("Http Response header Content-Encoding : %s",  contentEncoding));
+				//		in = new GZIPInputStream(in, 1024);
+				//	}
+
 					StreamUtils.copy(in, out);
 					out.flush();
-					final byte[] data = dataStream.toByteArray();
+                    out.close();
+                    dataStream.close();
+                    // Prepare Image Convertion
+                    final byte[] data = dataStream.toByteArray();
 					final ByteArrayInputStream byteStream = new ByteArrayInputStream(data);
-
 					// Save the data to the filesystem cache
 					if (mFilesystemCache != null) {
 						mFilesystemCache.saveFile(mTileSource, tile, byteStream);
 						byteStream.reset();
 					}
 					final Drawable result = mTileSource.getDrawable(byteStream);
+                    // Close In
+                    byteStream.close();
 
 					return result;
 				} finally {
-					urlConnection.disconnect();
+                    if (in != null) in.close();
+				//	urlConnection.disconnect();
 				}
 
 			} catch (final UnknownHostException e) {
