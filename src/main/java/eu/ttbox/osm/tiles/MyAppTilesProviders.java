@@ -11,6 +11,8 @@ import org.osmdroid.tileprovider.tilesource.bing.BingMapTileSource;
 import org.osmdroid.tileprovider.util.CloudmadeUtil;
 
 import android.content.Context;
+
+import eu.ttbox.osm.tiles.sourcebase.XYTileSourceTTBox;
 import eu.ttbox.osm.tiles.svg.CloudmadeTileSourceVector;
 
 /**
@@ -29,7 +31,7 @@ import eu.ttbox.osm.tiles.svg.CloudmadeTileSourceVector;
  *      http://wiki.openstreetmap.org/wiki/Tile_Disk_Usage
  * 
  *      Somes Tiles @see http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
- * 
+ * <a href="http://wiki.openstreetmap.org/wiki/Tiles">List of Avaialable TIles</a>
  */
 public class MyAppTilesProviders {
 
@@ -54,13 +56,43 @@ public class MyAppTilesProviders {
 			"http://alpha.vectors.cloudmade.com/%s/%d/%d/%d/%d/%d%s?token=%s" //
 	);
 
-	public static void initTilesSource(Context context) {
+    public static final OnlineTileSourceBase SKECHBOY_TILES =  new XYTileSourceTTBox( //
+            "Skechboy", "Skechboy SPDY",  0, 17, 256, ".png", //
+            "https://skechboy.com/maps/"  //
+    );
+
+
+
+    public static final OnlineTileSourceBase STAMEN_WATERCOLOR_TILES =  new XYTileSourceTTBox( //
+              "StamenWaterColor", "Stamen Watercolor", 0, 17, 256, ".jpg", //
+            "http://a.tile.stamen.com/watercolor/"  //
+          );
+
+    /*public static final OnlineTileSourceBase STAMEN_BLACK_AND_WHITE_TILES =  new XYTileSourceTTBox( //
+            "StamenBlackAndWhite", "Stamen Black&White",  0, 17, 256, ".png", //
+            "http://toolserver.org/~cmarqu/hill/"  //
+    );
+
+    public static final OnlineTileSourceBase STAMEN_HILL_SHADING_TILES =  new XYTileSourceTTBox( //
+            "StamenHillShading", "Stamen HillShading",  0, 17, 256, ".png", //
+            "http://toolserver.org/~cmarqu/hill/"  //
+    );*/
+
+    public static final OnlineTileSourceBase MAPNIK_BLACK_AND_WHITE_TILES =  new XYTileSourceTTBox( //
+            "MapNikBlackAndWhite", "MapNik Black&White",  0, 17, 256, ".png", //
+            "http://a.www.toolserver.org/tiles/bw-mapnik/"  //
+    );
+
+
+    public static void initTilesSource(Context context) {
 		// Remove Tiles
 		ArrayList<ITileSource> tileSources = TileSourceFactory.getTileSources();
 		tileSources.remove(TileSourceFactory.TOPO);
 		tileSources.remove(TileSourceFactory.MAPQUESTAERIAL);
 		tileSources.remove(TileSourceFactory.BASE);
-		tileSources.remove(TileSourceFactory.HILLS);
+ 		tileSources.remove(TileSourceFactory.HILLS);
+         tileSources.remove(TileSourceFactory.PUBLIC_TRANSPORT);
+         tileSources.remove(TileSourceFactory.CLOUDMADESMALLTILES);
 		// Add Licence Tiles
 		// ------------------
 		// only do static initialisation if needed
@@ -72,16 +104,33 @@ public class MyAppTilesProviders {
 			BingMapTileSource.retrieveBingKey(context);
 		}
 		final BingMapTileSource bmts = new BingMapTileSource(null);
-		if (!TileSourceFactory.containsTileSource(bmts.name())) {
-			TileSourceFactory.addTileSource(bmts);
-		}
+        addTilesIfNotContainsInSource(bmts);
 		// Add Other Tiles
 		// if (!tileSources.contains(CLOUDMADE_VECTOR_TILES)) {
-		if (!TileSourceFactory.containsTileSource(CLOUDMADE_VECTOR_TILES.name())) {
-			TileSourceFactory.addTileSource(CLOUDMADE_VECTOR_TILES);
-		}
+	//	if (!TileSourceFactory.containsTileSource(CLOUDMADE_VECTOR_TILES.name())) {
+	//		TileSourceFactory.addTileSource(CLOUDMADE_VECTOR_TILES);
+	//	}
+
+
+        addTilesIfNotContainsInSource(SKECHBOY_TILES);
+
+        addTilesIfNotContainsInSource(STAMEN_WATERCOLOR_TILES);
+//        addTilesIfNotContainsInSource(STAMEN_BLACK_AND_WHITE_TILES);
+//        addTilesIfNotContainsInSource(STAMEN_HILL_SHADING_TILES);
+
+        addTilesIfNotContainsInSource(MAPNIK_BLACK_AND_WHITE_TILES);
+
 		// TileSourceFactory.addTileSource(PISTEMAP);
 
 	}
+
+    private static boolean addTilesIfNotContainsInSource(OnlineTileSourceBase tile) {
+        boolean result = false;
+        if (!TileSourceFactory.containsTileSource(tile.name())) {
+            TileSourceFactory.addTileSource(tile);
+            result = true;
+        }
+        return result;
+    }
 
 }

@@ -5,6 +5,7 @@ import org.osmdroid.tileprovider.IRegisterReceiver;
 import org.osmdroid.tileprovider.constants.OpenStreetMapTileProviderConstants;
 import org.osmdroid.tileprovider.modules.INetworkAvailablityCheck;
 import org.osmdroid.tileprovider.modules.MapTileDownloaderTTbox;
+import org.osmdroid.tileprovider.modules.MapTileSpdyDownloaderTTbox;
 import org.osmdroid.tileprovider.modules.TileWriter;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -71,7 +72,7 @@ public class MapTileProviderTTbox extends MapTileProviderArrayTTbox //
 		// pRegisterReceiver, pTileSource);
 		// mTileProviderList.add(archiveProvider);
 
-		final MapTileDownloaderTTbox downloaderProvider = new MapTileDownloaderTTbox(pTileSource, tileWriter, aNetworkAvailablityCheck);
+		final MapTileSpdyDownloaderTTbox downloaderProvider = new MapTileSpdyDownloaderTTbox(pTileSource, tileWriter, aNetworkAvailablityCheck);
 		mTileProviderList.add(downloaderProvider);
 		// Memory Management
 		initMemoryListener(pContext);
