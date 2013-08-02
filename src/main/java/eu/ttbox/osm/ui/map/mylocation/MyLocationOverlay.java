@@ -1,28 +1,5 @@
 package eu.ttbox.osm.ui.map.mylocation;
 
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import microsoft.mappoint.TileSystem;
-
-import org.osmdroid.DefaultResourceProxyImpl;
-import org.osmdroid.ResourceProxy;
-import org.osmdroid.api.IGeoPoint;
-import org.osmdroid.tileprovider.modules.ConfigurablePriorityThreadFactory;
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapController;
-import org.osmdroid.views.MapController.AnimationType;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.MapView.Projection;
-import org.osmdroid.views.overlay.Overlay;
- 
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -55,6 +32,27 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
+
+import org.osmdroid.DefaultResourceProxyImpl;
+import org.osmdroid.ResourceProxy;
+import org.osmdroid.api.IGeoPoint;
+import org.osmdroid.tileprovider.modules.ConfigurablePriorityThreadFactory;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapController;
+import org.osmdroid.views.MapController.AnimationType;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.MapView.Projection;
+import org.osmdroid.views.overlay.Overlay;
+
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import eu.ttbox.osm.R;
 import eu.ttbox.osm.core.AppConstants;
 import eu.ttbox.osm.ui.map.mylocation.bubble.MapCalloutView;
@@ -63,109 +61,137 @@ import eu.ttbox.osm.ui.map.mylocation.bubble.MyLocationBubble;
 import eu.ttbox.osm.ui.map.mylocation.drawable.BlinkingDrawable;
 import eu.ttbox.osm.ui.map.mylocation.sensor.MyLocationListenerProxy;
 import eu.ttbox.osm.ui.map.mylocation.sensor.OrientationSensorEventListenerProxy;
+import microsoft.mappoint.TileSystem;
 
 /**
  * {@link http
  * ://android-developers.blogspot.fr/2011/06/deep-dive-into-location.html}
- * 
- * 
  */
 public class MyLocationOverlay extends Overlay implements SensorEventListener, LocationListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static final String TAG = "MyLocationOverlay";
-
     public static final boolean DEBUGMODE = false;
-
+    // Message Handler
+    protected static final int UI_MSG_SET_ADDRESS = 0;
     /**
      * Curious but true: a zero-length array is slightly lighter-weight than
      * merely allocating an Object, and can still be synchronized on.
      */
     static final Object[] sDataLock = new Object[0];
+    private static final String TAG = "MyLocationOverlay";
+    private static final int INDEX_FIRST = 0;
+    private static final int INDEX_SECOND = 1;
+    public final Geocoder geocoder;
 
-    private Context context;
+    // Sensor
+    public final MyLocationListenerProxy mLocationListener;
+    public final OrientationSensorEventListenerProxy mOrientationListener;
     protected final MapView mMapView;
     private final MapController mMapController;
     private final Display mDisplay;
-
-    // Sensor
-
     private final LocationManager locationManager;
     private final SensorManager mSensorManager;
-
-    public final Geocoder geocoder;
-
-    public final MyLocationListenerProxy mLocationListener;
-    public final OrientationSensorEventListenerProxy mOrientationListener;
-
-    // Constante
-    private AnimationType animateToAnimationType = AnimationType.EXPONENTIALDECELERATING;
-
     // Config Data
     private final LinkedList<Runnable> runOnFirstFix = new LinkedList<Runnable>();
-    protected boolean mFollow = true; // follow location updates
-    protected boolean mDrawAccuracyEnabled = true;
-    protected boolean mDrawCompassEnabled = false;
-    protected AtomicBoolean mDrawMyLocationEnabled = new AtomicBoolean( false);
-
     // Compass Config
     private final int mCompassCenterX = 35;
     private final int mCompassCenterY = 35;
     private final int mCompassRadius = 20;
+    // to avoid allocations during onDraw
+    private final Point mMapCoords = new Point();
+    private final Matrix directionRotater = new Matrix();
+    private final Matrix mCompassMatrix = new Matrix();
+    private final Point tapPointScreenCoords = new Point();
+    private final Rect tapPointHitTestRect = new Rect();
+    private final BlinkingDrawable blinkDrawable;
+    private final Callable<Void> blinkCallable = new Callable<Void>() {
+
+        @Override
+        public Void call() throws Exception {
+            DIRECTION_ARROW_SELECTED = DIRECTION_ARROW_ON;
+            if (isMyLocationEnabled() && (runOnFirstFixExecutor != null)) {
+                runOnFirstFixExecutor.schedule(blinkCallableOff, 1l, TimeUnit.SECONDS);
+            }
+            return null;
+        }
+    };
+    private final Callable<Void> blinkCallableOff = new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+            DIRECTION_ARROW_SELECTED = DIRECTION_ARROW;
+            if (isMyLocationEnabled() && (runOnFirstFixExecutor != null)) {
+                doBlink();
+            }
+            return null;
+        }
+    };
+    private final OnDoubleTapListener mOnDoubleTapListener = new OnDoubleTapListener() {
+        @Override
+        public void onDoubleTap(View v) {
+            // final Annotation annotation = getSelectedAnnotation();
+            final Location lastFix = mLocationListener.getLastFix();
+            GeoPoint lastFixAsGeoPoint = mLocationListener.getLastKnownLocationAsGeoPoint();
+            if (lastFixAsGeoPoint != null) {
+                mMapController.zoomToSpan(1, 1);
+                mMapController.setCenter(lastFixAsGeoPoint);
+            }
+        }
+    };
+    protected boolean mFollow = true; // follow location updates
+    protected boolean mDrawAccuracyEnabled = true;
+    protected boolean mDrawCompassEnabled = false;
+    protected AtomicBoolean mDrawMyLocationEnabled = new AtomicBoolean(false);
     protected Bitmap mCompassRose;
     protected int COMPASS_ROSE_CENTER_X;
     protected int COMPASS_ROSE_CENTER_Y;
-
-    // Bubble
-    private MyLocationBubble balloonView;
-    private MapView.LayoutParams balloonViewLayoutParams;
     // Paint
     protected Paint mPaint;
     protected Paint mCirclePaint;
     protected Paint mCirclePaintBorder;
-
     protected Bitmap DIRECTION_ARROW;
     protected Bitmap DIRECTION_ARROW_ON;
     protected Bitmap DIRECTION_ARROW_SELECTED;
-
     protected int DIRECTION_ARROW_CENTER_X;
     protected int DIRECTION_ARROW_CENTER_Y;
-
-    // Prefs
-    private SharedPreferences sharedPreferences;
-
-    // Thread executor
-    private ScheduledThreadPoolExecutor runOnFirstFixExecutor;
-
-    // to avoid allocations during onDraw
-    private final Point mMapCoords = new Point();
-    private final Matrix directionRotater = new Matrix();
-
-    private final Matrix mCompassMatrix = new Matrix();
-
-    private final Point tapPointScreenCoords = new Point();
-    private final Rect tapPointHitTestRect = new Rect();
-
-    private final BlinkingDrawable blinkDrawable;
+    private Context context;
+    // Constante
+    private AnimationType animateToAnimationType = AnimationType.EXPONENTIALDECELERATING;
     // private final BitmapDrawable blinkBitmapDrawable;
-
-    // Message Handler
-    protected static final int UI_MSG_SET_ADDRESS = 0;
-
-    private Handler uiHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-            case UI_MSG_SET_ADDRESS:
-                if (balloonView != null) {
-                    Address addr = (Address) msg.obj;
-                    balloonView.setAddress(addr);
-                }
-                break;
-            }
-        }
-    };
+    // Bubble
+    private MyLocationBubble balloonView;
+    private MapView.LayoutParams balloonViewLayoutParams;
 
     // ===========================================================
     // Constructors
+    // ===========================================================
+    // Prefs
+    private SharedPreferences sharedPreferences;
+    // Thread executor
+    private ScheduledThreadPoolExecutor runOnFirstFixExecutor;
+    // Dirty Box for Post Invalidation
+    private Rect dirtyRectForLocationAccuracy = new Rect();
+    private Rect dirtyRectForLocationDirection = new Rect();
+    private Handler uiHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case UI_MSG_SET_ADDRESS:
+                    if (balloonView != null) {
+                        Address addr = (Address) msg.obj;
+                        balloonView.setAddress(addr);
+                    }
+                    break;
+            }
+        }
+    };
+    private int dirtyLastAzimuth = 0;
+    private MapCalloutView mMapCallouts[] = new MapCalloutView[2];
+
+    // ===========================================================
+    // Listener
+    // ===========================================================
+    private int mMapCalloutIndex;
+
+    // ===========================================================
+    // Sensor
     // ===========================================================
 
     public MyLocationOverlay(final Context ctx, final MapView mapView) {
@@ -201,7 +227,7 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
         blinkDrawable = new BlinkingDrawable(onDrawable, offDrawable);
 //        blinkDrawable.doBlinkDrawable();
         // blinkBitmapDrawable = new BitmapDrawable(r, blinkDrawable);
-        
+
         // Init sensor
         mLocationListener = new MyLocationListenerProxy(locationManager);
         mOrientationListener = new OrientationSensorEventListenerProxy(mSensorManager);
@@ -226,6 +252,10 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
 
     }
 
+    // ===========================================================
+    // GPS Sensor
+    // ===========================================================
+
     @Override
     public void onDetach(final MapView mapView) {
         disableThreadExecutors();
@@ -241,6 +271,7 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
         this.mPaint = new Paint();
         this.mPaint.setColor(Color.RED);
         this.mPaint.setStyle(Style.STROKE);
+
 
         // Compass
         mCompassRose = CompassPictureFactory.createCompassRoseBitmap(mCompassRadius, mScale);
@@ -265,15 +296,16 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
         this.DIRECTION_ARROW_SELECTED = DIRECTION_ARROW;
         this.DIRECTION_ARROW_CENTER_X = DIRECTION_ARROW.getWidth() / 2;
         this.DIRECTION_ARROW_CENTER_Y = DIRECTION_ARROW.getHeight() / 2;
+        initDirtyBoxForLocationDirection();
 
         // For Blink bitmap
         this.DIRECTION_ARROW_ON = BitmapFactory.decodeResource(context.getResources(), R.drawable.vm_chevron_obscured_on);
 
     }
 
-    // ===========================================================
-    // Listener
-    // ===========================================================
+    private void initDirtyBoxForLocationDirection() {
+        dirtyRectForLocationDirection.set(-DIRECTION_ARROW_SELECTED.getWidth(), -DIRECTION_ARROW_SELECTED.getHeight(), DIRECTION_ARROW_SELECTED.getWidth(), DIRECTION_ARROW_SELECTED.getHeight());
+    }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
@@ -286,15 +318,16 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
 
     }
 
-    // ===========================================================
-    // Sensor
-    // ===========================================================
-
     @Override
     public void onSensorChanged(final SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
             if (event.values != null) {
-                mapViewInvalidate();
+                int currentAzimuth = getDisplayAzimuth();
+                if (dirtyLastAzimuth != currentAzimuth) {
+                    mapViewInvalidate(dirtyRectForLocationDirection);
+                    dirtyLastAzimuth = currentAzimuth;
+                    Log.d(TAG, "onSensorChanged [" + dirtyLastAzimuth + "] Map invalidate : " + dirtyRectForLocationDirection);
+                }
             }
         }
     }
@@ -303,35 +336,14 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
-    // ===========================================================
-    // GPS Sensor
-    // ===========================================================
-
-    private void mapViewInvalidate() {
-        mMapView.postInvalidate();
-    }
-
-    private void mapViewInvalidate(Rect dirty) {
-        // mMapView.invalidate(dirty);
-        mMapView.postInvalidate(dirty.left, dirty.top, dirty.right, dirty.bottom);
-    }
-
-    public void animateToLastFix() {
-        GeoPoint geoPoint = mLocationListener.getLastFixAsGeoPoint();
-        if (geoPoint != null) {
-            // mMapController.animateTo(geoPoint, animateToAnimationType);
-            mMapController.setCenter(geoPoint);
-            Log.d(TAG, "MyLocation animateToLastFix mapController : animateTo " + geoPoint);
-        }
-    }
-
     @Override
     public void onLocationChanged(final Location location) {
 
         if (mFollow) {
             animateToLastFix();
         } else {
-            mapViewInvalidate(); // redraw the my location icon
+            mapViewInvalidate(dirtyRectForLocationAccuracy); // redraw the my location icon
+            Log.d(TAG, "onLocationChanged [" + location+ "] mapViewInvalidate : " + dirtyRectForLocationAccuracy);
         }
         // Update Bubble
 
@@ -341,6 +353,36 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
                 runOnFirstFixExecutor.execute(runnable);
             }
             runOnFirstFix.clear();
+        }
+    }
+
+    // ===========================================================
+    // Blink
+    // ===========================================================
+
+
+
+    private void mapViewInvalidate() {
+        mMapView.postInvalidate();
+    }
+
+    private void mapViewInvalidate(Rect dirty) {
+        mMapView.postInvalidate();
+        // mMapView.invalidate(dirty);
+        //mMapView.postInvalidate(dirty.left, dirty.top, dirty.right, dirty.bottom);
+//        mMapView.postInvalidateOnAnimation(dirty.left, dirty.top, dirty.right, dirty.bottom);
+    }
+
+    // ===========================================================
+    // Drawing On Map
+    // ===========================================================
+
+    public void animateToLastFix() {
+        GeoPoint geoPoint = mLocationListener.getLastFixAsGeoPoint();
+        if (geoPoint != null) {
+            // mMapController.animateTo(geoPoint, animateToAnimationType);
+            mMapController.setCenter(geoPoint);
+            Log.d(TAG, "MyLocation animateToLastFix mapController : animateTo " + geoPoint);
         }
     }
 
@@ -356,45 +398,14 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
     public void onStatusChanged(final String provider, final int status, final Bundle extras) {
     }
 
-    // ===========================================================
-    // Blink
-    // ===========================================================
+    private void doBlink() {
+        if (isMyLocationEnabled() && runOnFirstFixExecutor != null) {
 
-    private void doBlink() { 
-        if (isMyLocationEnabled() &&  runOnFirstFixExecutor != null) {
- 
             runOnFirstFixExecutor.schedule(blinkCallable, 1l, TimeUnit.SECONDS);
         } else {
             Log.w(TAG, "runOnFirstFixExecutor is null : Could not run doBlink()");
         }
     }
-
-    private final Callable<Void> blinkCallable = new Callable<Void>() {
-
-        @Override
-        public Void call() throws Exception {
-            DIRECTION_ARROW_SELECTED = DIRECTION_ARROW_ON;
-            if (isMyLocationEnabled() && (runOnFirstFixExecutor != null)) {
-                runOnFirstFixExecutor.schedule(blinkCallableOff, 1l, TimeUnit.SECONDS);
-            }
-            return null;
-        }
-    };
-
-    private final Callable<Void> blinkCallableOff = new Callable<Void>() {
-        @Override
-        public Void call() throws Exception {
-            DIRECTION_ARROW_SELECTED = DIRECTION_ARROW;
-            if (isMyLocationEnabled() && (runOnFirstFixExecutor != null)) {
-                doBlink();
-            }
-            return null;
-        }
-    };
-
-    // ===========================================================
-    // Drawing On Map
-    // ===========================================================
 
     public void disableThreadExecutors() {
         if (runOnFirstFixExecutor != null) {
@@ -405,8 +416,8 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
     }
 
     public synchronized void enableThreadExecutors() {
-        if (runOnFirstFixExecutor == null) { 
-         // Threads Executor ?? Executors.newSingleThreadScheduledExecutor( ); ??
+        if (runOnFirstFixExecutor == null) {
+            // Threads Executor ?? Executors.newSingleThreadScheduledExecutor( ); ??
             runOnFirstFixExecutor = new ScheduledThreadPoolExecutor(1, new ConfigurablePriorityThreadFactory(Thread.NORM_PRIORITY, "mylocationThread"));
             // doBlink();
         }
@@ -421,6 +432,10 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
             return true;
         }
     }
+
+    // ===========================================================
+    // Config Assessors
+    // ===========================================================
 
     // @Override
     public boolean enableCompass() {
@@ -454,7 +469,7 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
             return true;
         }
         boolean result = true;
-        this.mDrawMyLocationEnabled.set( true);
+        this.mDrawMyLocationEnabled.set(true);
         result = mLocationListener.startListening(this);
         enableCompass();
 
@@ -501,21 +516,17 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
      */
     // @Override
     public void disableMyLocation() {
-//        if (!mDrawMyLocationEnabled.get()) { 
+//        if (!mDrawMyLocationEnabled.get()) {
 //            return  ;
 //        }
         disableCompass();
         mLocationListener.stopListening();
-        this.mDrawMyLocationEnabled.set(  false);
+        this.mDrawMyLocationEnabled.set(false);
         // Cancel Blink
 
         // Invalidate
         mapViewInvalidate();
     }
-
-    // ===========================================================
-    // Config Assessors
-    // ===========================================================
 
     public boolean isMyLocationEnabled() {
         if (mLocationListener != null) {
@@ -523,6 +534,10 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
         }
         return false;
     }
+
+    // ===========================================================
+    // Sensor Assessors
+    // ===========================================================
 
     /**
      * Enables "follow" functionality. The map will center on your current
@@ -572,46 +587,6 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
         }
     }
 
-    public boolean isCompassEnabled() {
-        return mDrawCompassEnabled;
-    }
-
-    // ===========================================================
-    // Sensor Assessors
-    // ===========================================================
-
-    public boolean isGpsLocationProviderIsEnable() {
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-    }
-
-    public GeoPoint getLastKnownLocationAsGeoPoint() {
-        return mLocationListener.getLastKnownLocationAsGeoPoint();
-    }
-
-    public GeoPoint getLastFixAsGeoPoint() {
-        return mLocationListener.getLastFixAsGeoPoint();
-    }
-
-    private int getDisplayRotation() {
-        int ang = 0;
-        switch (mDisplay.getRotation()) { // .getOrientation()
-        case Surface.ROTATION_0:
-            break;
-        case Surface.ROTATION_90:
-            ang = 90;
-            break;
-        case Surface.ROTATION_180:
-            ang = 180;
-            break;
-        case Surface.ROTATION_270:
-            ang = 270;
-            break;
-        default:
-            break;
-        }
-        return ang;
-    }
-
     // private int getDisplayRotation2() {
     // int AXIS_X, AXIS_Y;
     // int x = AXIS_X;
@@ -627,17 +602,64 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
     // return ang;
     // }
 
+    public boolean isCompassEnabled() {
+        return mDrawCompassEnabled;
+    }
+
+    public boolean isGpsLocationProviderIsEnable() {
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+    public GeoPoint getLastKnownLocationAsGeoPoint() {
+        return mLocationListener.getLastKnownLocationAsGeoPoint();
+    }
+    // ===========================================================
+    // Drawing Location On Map
+    // ===========================================================
+
+    public GeoPoint getLastFixAsGeoPoint() {
+        return mLocationListener.getLastFixAsGeoPoint();
+    }
+
+    private int getDisplayRotation() {
+        int ang = 0;
+        switch (mDisplay.getRotation()) { // .getOrientation()
+            case Surface.ROTATION_0:
+                break;
+            case Surface.ROTATION_90:
+                ang = 90;
+                break;
+            case Surface.ROTATION_180:
+                ang = 180;
+                break;
+            case Surface.ROTATION_270:
+                ang = 270;
+                break;
+            default:
+                break;
+        }
+        return ang;
+    }
+
+    // ===========================================================
+    // Drawing Compass
+    // ===========================================================
+
     public int getAzimuth() {
         return mOrientationListener.getAzimuth();
     }
 
+    // ===========================================================
+    // Motion Event Management
+    // ===========================================================
+
     public int getDisplayAzimuth() {
-        return getAzimuth() + getDisplayRotation();
+        return getDisplayAzimuth(getAzimuth());
     }
 
-    // ===========================================================
-    // Drawing Location On Map
-    // ===========================================================
+    public int getDisplayAzimuth(int brutAzimth) {
+        return brutAzimth + getDisplayRotation();
+    }
 
     @Override
     protected void draw(Canvas canvas, MapView mapView, boolean shadow) {
@@ -666,6 +688,9 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
             final float radius = lastFix.getAccuracy() / groundResolutionInM;
             canvas.drawCircle(mMapCoords.x, mMapCoords.y, radius, mCirclePaint);
             canvas.drawCircle(mMapCoords.x, mMapCoords.y, radius, mCirclePaintBorder);
+            // Record dirty Box
+            int radiusAsInt = ((int) radius) + 1;
+            dirtyRectForLocationAccuracy.set(mMapCoords.x - radiusAsInt, mMapCoords.y - radiusAsInt, mMapCoords.x + radiusAsInt, mMapCoords.y + radiusAsInt);
         }
 
         if (DEBUGMODE) {
@@ -691,10 +716,11 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
         directionRotater.postTranslate(-DIRECTION_ARROW_CENTER_X, -DIRECTION_ARROW_CENTER_Y);
         directionRotater.postTranslate(mMapCoords.x, mMapCoords.y);
         canvas.drawBitmap(DIRECTION_ARROW_SELECTED, directionRotater, mPaint);
+        // Copute Dirty Rex
+        dirtyRectForLocationDirection.offsetTo(mMapCoords.x-DIRECTION_ARROW_CENTER_X-DIRECTION_ARROW_CENTER_X, mMapCoords.y-DIRECTION_ARROW_CENTER_Y-DIRECTION_ARROW_CENTER_Y);
 
-        //TODO    blinkDrawable.draw(canvas);
-       
-        
+        //TODO    blinkDrawable.draw(canvas);adb
+
         // Debug
         if (DEBUGMODE) {
             canvas.drawCircle(mMapCoords.x, mMapCoords.y, 5, mPaint);
@@ -702,13 +728,13 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
             hitTestRecr.set(-DIRECTION_ARROW_CENTER_X, -DIRECTION_ARROW_CENTER_Y, DIRECTION_ARROW_CENTER_X, DIRECTION_ARROW_CENTER_Y);
             hitTestRecr.offset(mMapCoords.x, mMapCoords.y);
             canvas.drawRect(hitTestRecr, mPaint);
+            // Dirty Box
+            canvas.drawRect(dirtyRectForLocationAccuracy, mPaint);
+            canvas.drawRect(dirtyRectForLocationDirection, mPaint);
+
         }
 
     }
-
-    // ===========================================================
-    // Drawing Compass
-    // ===========================================================
 
     protected void drawCompass(final Canvas canvas, final MapView mapView, final float bearing) {
         // Screen Limit
@@ -726,8 +752,7 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
 
         canvas.drawBitmap(mCompassRose, mCompassMatrix, mPaint);
 
-        
-        
+
         // Debug
         if (DEBUGMODE) {
             Rect hitTestRecr = new Rect();
@@ -740,6 +765,7 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
     // ===========================================================
     // Motion Event Management
     // ===========================================================
+    // https://github.com/cyrilmottier/Polaris/blob/master/library/src/com/cyrilmottier/polaris/PolarisMapView.java
 
     @Override
     public boolean onTouchEvent(final MotionEvent event, final MapView mapView) {
@@ -766,15 +792,15 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
                     balloonView.setVisibility(View.GONE);
                     // Todo add click listener
                 }
-//              TODO   showCallout();  
+//              TODO   showCallout();
                 boolean balloonViewNotVisible = (View.VISIBLE != balloonView.getVisibility());
-                Log.d(TAG, "onSingleTapUp my location balloon is NOT visible : " + balloonViewNotVisible  + " (" + balloonView.getVisibility()  + ") on geoPoint " + lastFixAsGeoPoint );
+                Log.d(TAG, "onSingleTapUp my location balloon is NOT visible : " + balloonViewNotVisible + " (" + balloonView.getVisibility() + ") on geoPoint " + lastFixAsGeoPoint);
                 if (balloonViewNotVisible) {
                     // Compute Offset
                     int offsetX = 0; // 150
                     int offsetY = -20; // -20
                     // Position Layout
-                    boolean isRecycled = balloonViewLayoutParams!=null;
+                    boolean isRecycled = balloonViewLayoutParams != null;
                     balloonViewLayoutParams = new MapView.LayoutParams(MapView.LayoutParams.WRAP_CONTENT, MapView.LayoutParams.WRAP_CONTENT,
                             lastFixAsGeoPoint, MapView.LayoutParams.BOTTOM_CENTER,
                             offsetX, offsetY);
@@ -789,8 +815,8 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
                     balloonView.setVisibility(View.VISIBLE);
                     // balloonView.setData(lastFix);
                     setBubbleData(lastFix);
-                    
-                   
+
+
                     return true;
                 } else {
                     return hideBubble(mapView);
@@ -846,35 +872,6 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
         return isHide;
     }
 
-    private boolean isTapOnFixLocation(final MotionEvent event, final MapView mapView, final GeoPoint lastFixAsGeoPoint) {
-        if (lastFixAsGeoPoint != null) {
-            // Test for hit point in MyLocation 
-            Projection pj = mapView.getProjection();
-            // LastFix Location to Screen Coords
-            pj.toMapPixels(lastFixAsGeoPoint, tapPointScreenCoords);
-            // Tested Box for LastFix
-            tapPointHitTestRect.set(-DIRECTION_ARROW_CENTER_X, -DIRECTION_ARROW_CENTER_Y, DIRECTION_ARROW_CENTER_X, DIRECTION_ARROW_CENTER_Y);
-            tapPointHitTestRect.offset(tapPointScreenCoords.x, tapPointScreenCoords.y);
-            // Tap Point
-            IGeoPoint tapPoint = pj.fromPixels(event.getX(), event.getY());
-            pj.toMapPixels(tapPoint, tapPointScreenCoords);
-            // Test If On Containt the other
-            return tapPointHitTestRect.contains(tapPointScreenCoords.x, tapPointScreenCoords.y);
-        }
-        return false;
-    }
-
-    // ===========================================================
-    // Motion Event Management
-    // ===========================================================
-    // https://github.com/cyrilmottier/Polaris/blob/master/library/src/com/cyrilmottier/polaris/PolarisMapView.java
-    
-    private static final int INDEX_FIRST = 0;
-    private static final int INDEX_SECOND = 1;
-
-    private MapCalloutView mMapCallouts[] = new MapCalloutView[2];
-    private int mMapCalloutIndex;
-
 //    private OnAnnotationSelectionChangedListener mOnAnnotationSelectionChangedListener;
 //    
 //    private final OnClickListener mOnClickListener = new OnClickListener() {
@@ -892,18 +889,23 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
 //        }
 //    };
 
-    private final OnDoubleTapListener mOnDoubleTapListener = new OnDoubleTapListener() {
-        @Override
-        public void onDoubleTap(View v) {
-            // final Annotation annotation = getSelectedAnnotation();
-            final Location lastFix = mLocationListener.getLastFix(); 
-            GeoPoint lastFixAsGeoPoint = mLocationListener.getLastKnownLocationAsGeoPoint();
-            if (lastFixAsGeoPoint != null) {
-                mMapController.zoomToSpan(1, 1);
-                mMapController.setCenter(lastFixAsGeoPoint);
-            }
+    private boolean isTapOnFixLocation(final MotionEvent event, final MapView mapView, final GeoPoint lastFixAsGeoPoint) {
+        if (lastFixAsGeoPoint != null) {
+            // Test for hit point in MyLocation
+            Projection pj = mapView.getProjection();
+            // LastFix Location to Screen Coords
+            pj.toMapPixels(lastFixAsGeoPoint, tapPointScreenCoords);
+            // Tested Box for LastFix
+            tapPointHitTestRect.set(-DIRECTION_ARROW_CENTER_X, -DIRECTION_ARROW_CENTER_Y, DIRECTION_ARROW_CENTER_X, DIRECTION_ARROW_CENTER_Y);
+            tapPointHitTestRect.offset(tapPointScreenCoords.x, tapPointScreenCoords.y);
+            // Tap Point
+            IGeoPoint tapPoint = pj.fromPixels(event.getX(), event.getY());
+            pj.toMapPixels(tapPoint, tapPointScreenCoords);
+            // Test If On Containt the other
+            return tapPointHitTestRect.contains(tapPointScreenCoords.x, tapPointScreenCoords.y);
         }
-    };
+        return false;
+    }
 
     private MapCalloutView getMapCallout(int index) {
         if (mMapCallouts[index] == null) {
@@ -935,22 +937,22 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
             final MapCalloutView mapCalloutView = getNextMapCallout();
             int markerHeight = 20; // marker.getBounds().height();
             mapCalloutView.setMarkerHeight(markerHeight);
-          // TODO Set Data
+            // TODO Set Data
 //            mapCalloutView.setData(lastFix);
             mapCalloutView.setTitle(getLoacationAsDataTitle(lastFix));
             mapCalloutView.setSubtitle(getLoacationAsDataSubtitle(lastFix));
             if (mapCalloutView.hasDisplayableContent()) {
                 mapCalloutView.show(mMapView, lastFixAsGeoPoint, true);
             }
-            
+
         }
     }
-    
-   private String getLoacationAsDataTitle( Location lastFix ) {
+
+    private String getLoacationAsDataTitle(Location lastFix) {
         return lastFix.getProvider();
     }
-   
-    private String getLoacationAsDataSubtitle( Location location ) {
+
+    private String getLoacationAsDataSubtitle(Location location) {
         StringBuilder sb = new StringBuilder(128);
         // Location
         double lat = location.getLatitude();

@@ -85,8 +85,8 @@ public class MyAppTilesProviders {
             "CloudMadeSslTiles", ResourceProxy.string.cloudmade_standard, 0, 18, 256, ".png",
             "https://ssl_tiles.cloudmade.com/%s/%d/%d/%d/%d/%d%s?token=%s");
 
-    //public static final OnlineTileSourceBase MAPNIK_SCALE_2 = new XYTileSourceScaleTTBox(
-    //        2, "MapnikScale2", "Mapnik Scale 2", TileSourceFactory.MAPNIK );
+    public static final OnlineTileSourceBase MAPNIK_SCALE_2 = new XYTileSourceScaleTTBox(
+             2, "MapnikScale2", "Mapnik Scale 2", TileSourceFactory.MAPNIK );
     //public static final OnlineTileSourceBase MAPNIK_SCALE_3 = new XYTileSourceScaleTTBox(
     //        3, "MapnikScale3", "Mapnik Scale 3", TileSourceFactory.MAPNIK  );
 
@@ -130,7 +130,7 @@ public class MyAppTilesProviders {
         addTilesIfNotContainsInSource(MAPNIK_BLACK_AND_WHITE_TILES);
         addTilesIfNotContainsInSource(MAPNIK_HIKEBIKE_TILES);
 
-      //  addTilesIfNotContainsInSource(MAPNIK_SCALE_2);
+        addTilesIfNotContainsInSource(MAPNIK_SCALE_2);
       //  addTilesIfNotContainsInSource(MAPNIK_SCALE_3);
 
         // addTilesIfNotContainsInSource(CLOUDMADE_SSL_TILES);
