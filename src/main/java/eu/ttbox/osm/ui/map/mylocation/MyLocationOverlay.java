@@ -795,7 +795,7 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
                 if (balloonViewNotVisible) {
 
                     // Position Layout
-                    boolean isRecycled = balloonViewLayoutParams != null;
+                    boolean isRecycled = false;// balloonViewLayoutParams != null;
                     balloonViewLayoutParams = createBubbleLayoutParams( lastFixAsGeoPoint );
                     if (isRecycled) {
                         balloonView.setLayoutParams(balloonViewLayoutParams);
@@ -821,14 +821,33 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
         return false;
     }
 
+
+    private boolean hideBubble(MapView mapView) {
+        boolean isHide = false;
+        if (balloonView != null && View.GONE != balloonView.getVisibility()) {
+            balloonView.setVisibility(View.GONE);
+            //Remove from stack
+            mapView.removeView(balloonView);
+          //  balloonViewLayoutParams = null;
+            isHide = true;
+
+        }
+        return isHide;
+    }
+
     private MapView.LayoutParams createBubbleLayoutParams(  GeoPoint lastFixAsGeoPoint) {
         // Compute Offset
         int offsetX = 0; // 150
         int offsetY = -20; // -20
         // Position Layout
-        MapView.LayoutParams result =  new MapView.LayoutParams(MapView.LayoutParams.WRAP_CONTENT, MapView.LayoutParams.WRAP_CONTENT,
+        MapView.LayoutParams result = balloonViewLayoutParams;
+        if (balloonViewLayoutParams==null) {
+              result =  new MapView.LayoutParams(MapView.LayoutParams.WRAP_CONTENT, MapView.LayoutParams.WRAP_CONTENT,
                 lastFixAsGeoPoint, MapView.LayoutParams.BOTTOM_CENTER,
                 offsetX, offsetY);
+        } else {
+            balloonViewLayoutParams.geoPoint = lastFixAsGeoPoint;
+        }
 
         return result;
     }
@@ -887,18 +906,6 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
         }
     }
 
-    private boolean hideBubble(MapView mapView) {
-        boolean isHide = false;
-        if (balloonView != null && View.GONE != balloonView.getVisibility()) {
-            balloonView.setVisibility(View.GONE);
-            //Remove from stack
-            mapView.removeView(balloonView);
-            balloonViewLayoutParams = null;
-            isHide = true;
-
-        }
-        return isHide;
-    }
 
 //    private OnAnnotationSelectionChangedListener mOnAnnotationSelectionChangedListener;
 //    

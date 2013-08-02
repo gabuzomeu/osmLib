@@ -21,7 +21,7 @@ public class MyLocationBubble extends FrameLayout {
     private final static String TAG = "MyLocationBubble";
 
     // Config
-    private int DEFAULT_BUBBLE_WIDTH = 200;
+    private final static int DEFAULT_BUBBLE_WIDTH = 200;
 
     // Datas
     private Location location;
