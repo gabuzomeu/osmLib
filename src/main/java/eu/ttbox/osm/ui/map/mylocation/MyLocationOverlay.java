@@ -22,6 +22,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -80,8 +81,8 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
     private static final String TAG = "MyLocationOverlay";
     private static final int INDEX_FIRST = 0;
     private static final int INDEX_SECOND = 1;
+    public static boolean isJb16 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
     public final Geocoder geocoder;
-
     // Sensor
     public final MyLocationListenerProxy mLocationListener;
     public final OrientationSensorEventListenerProxy mOrientationListener;
@@ -159,7 +160,6 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
     // Bubble
     private MyLocationBubble balloonView;
     private MapView.LayoutParams balloonViewLayoutParams;
-
     // ===========================================================
     // Constructors
     // ===========================================================
@@ -184,7 +184,6 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
     };
     private int dirtyLastAzimuth = 0;
     private MapCalloutView mMapCallouts[] = new MapCalloutView[2];
-
     // ===========================================================
     // Listener
     // ===========================================================
@@ -326,7 +325,7 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
                 if (dirtyLastAzimuth != currentAzimuth) {
                     mapViewInvalidate(dirtyRectForLocationDirection);
                     dirtyLastAzimuth = currentAzimuth;
-                    Log.d(TAG, "onSensorChanged [" + dirtyLastAzimuth + "] Map invalidate : " + dirtyRectForLocationDirection);
+                    //  Log.d(TAG, "onSensorChanged [" + dirtyLastAzimuth + "] Map invalidate : " + dirtyRectForLocationDirection);
                 }
             }
         }
@@ -338,14 +337,14 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
 
     @Override
     public void onLocationChanged(final Location location) {
-
         if (mFollow) {
             animateToLastFix();
         } else {
             mapViewInvalidate(dirtyRectForLocationAccuracy); // redraw the my location icon
-            Log.d(TAG, "onLocationChanged [" + location+ "] mapViewInvalidate : " + dirtyRectForLocationAccuracy);
+            // Log.d(TAG, "onLocationChanged [" + location + "] mapViewInvalidate : " + dirtyRectForLocationAccuracy);
         }
         // Update Bubble
+        setBubbleDataWithStickyBubble(location);
 
         // run On first Fix
         if (!runOnFirstFix.isEmpty()) {
@@ -360,17 +359,15 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
     // Blink
     // ===========================================================
 
-
-
     private void mapViewInvalidate() {
         mMapView.postInvalidate();
     }
 
     private void mapViewInvalidate(Rect dirty) {
-        mMapView.postInvalidate();
+        //      mMapView.postInvalidate();
         // mMapView.invalidate(dirty);
         //mMapView.postInvalidate(dirty.left, dirty.top, dirty.right, dirty.bottom);
-//        mMapView.postInvalidateOnAnimation(dirty.left, dirty.top, dirty.right, dirty.bottom);
+        mMapView.invalidateMapCoordinates(dirty);
     }
 
     // ===========================================================
@@ -717,7 +714,7 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
         directionRotater.postTranslate(mMapCoords.x, mMapCoords.y);
         canvas.drawBitmap(DIRECTION_ARROW_SELECTED, directionRotater, mPaint);
         // Copute Dirty Rex
-        dirtyRectForLocationDirection.offsetTo(mMapCoords.x-DIRECTION_ARROW_CENTER_X-DIRECTION_ARROW_CENTER_X, mMapCoords.y-DIRECTION_ARROW_CENTER_Y-DIRECTION_ARROW_CENTER_Y);
+        dirtyRectForLocationDirection.offsetTo(mMapCoords.x - DIRECTION_ARROW_CENTER_X - DIRECTION_ARROW_CENTER_X, mMapCoords.y - DIRECTION_ARROW_CENTER_Y - DIRECTION_ARROW_CENTER_Y);
 
         //TODO    blinkDrawable.draw(canvas);adb
 
@@ -796,14 +793,10 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
                 boolean balloonViewNotVisible = (View.VISIBLE != balloonView.getVisibility());
                 Log.d(TAG, "onSingleTapUp my location balloon is NOT visible : " + balloonViewNotVisible + " (" + balloonView.getVisibility() + ") on geoPoint " + lastFixAsGeoPoint);
                 if (balloonViewNotVisible) {
-                    // Compute Offset
-                    int offsetX = 0; // 150
-                    int offsetY = -20; // -20
+
                     // Position Layout
                     boolean isRecycled = balloonViewLayoutParams != null;
-                    balloonViewLayoutParams = new MapView.LayoutParams(MapView.LayoutParams.WRAP_CONTENT, MapView.LayoutParams.WRAP_CONTENT,
-                            lastFixAsGeoPoint, MapView.LayoutParams.BOTTOM_CENTER,
-                            offsetX, offsetY);
+                    balloonViewLayoutParams = createBubbleLayoutParams( lastFixAsGeoPoint );
                     if (isRecycled) {
                         balloonView.setLayoutParams(balloonViewLayoutParams);
                         Log.d(TAG, "onSingleTapUp : setLayoutParams " + balloonViewLayoutParams);
@@ -828,34 +821,69 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
         return false;
     }
 
+    private MapView.LayoutParams createBubbleLayoutParams(  GeoPoint lastFixAsGeoPoint) {
+        // Compute Offset
+        int offsetX = 0; // 150
+        int offsetY = -20; // -20
+        // Position Layout
+        MapView.LayoutParams result =  new MapView.LayoutParams(MapView.LayoutParams.WRAP_CONTENT, MapView.LayoutParams.WRAP_CONTENT,
+                lastFixAsGeoPoint, MapView.LayoutParams.BOTTOM_CENTER,
+                offsetX, offsetY);
+
+        return result;
+    }
+
+
+    private void setBubbleDataWithStickyBubble(final Location lastFix) {
+        setBubbleData(lastFix, false);
+        // Move Bubble
+        GeoPoint lastFixAsGeoPoint = mLocationListener.getLastKnownLocationAsGeoPoint();
+        // Check Bubble position
+        MapView.LayoutParams balloonViewLayoutParams = this.balloonViewLayoutParams;
+        MyLocationBubble balloonView = this.balloonView;
+        if (lastFixAsGeoPoint != null && balloonViewLayoutParams != null && balloonView != null) {
+           balloonViewLayoutParams = createBubbleLayoutParams( lastFixAsGeoPoint );
+            balloonView.setLayoutParams(balloonViewLayoutParams);
+        }
+    }
+
     private void setBubbleData(final Location lastFix) {
+        setBubbleData(lastFix, true);
+    }
+    private void setBubbleData(final Location lastFix, boolean doGeocoding) {
         if (balloonView != null && View.VISIBLE == balloonView.getVisibility()) {
             balloonView.setData(lastFix);
-            Runnable geocoderTask = new Runnable() {
-
-                @Override
-                public void run() {
-                    try {
-                        if (geocoder != null) {
-                            List<Address> addresses = geocoder.getFromLocation(lastFix.getLatitude(), lastFix.getLongitude(), 1);
-                            if (addresses != null && !addresses.isEmpty()) {
-                                final Address addr = addresses.get(0);
-                                Message msg = uiHandler.obtainMessage(UI_MSG_SET_ADDRESS, addr);
-                                uiHandler.sendMessage(msg);
-                            }
-                        }
-                    } catch (IOException e) {
-                        Log.e(TAG, "MyLocation Geocoder Error : " + e.getMessage());
-                    }
-
-                }
-            };
-
-            if (runOnFirstFixExecutor != null) {
-                runOnFirstFixExecutor.execute(geocoderTask);
-            } else {
-                Log.w(TAG, "runOnFirstFixExecutor is null : Could not run setBubbleData()");
+            if (doGeocoding) {
+                setBubbleDataGeocodingData(lastFix);
             }
+        }
+    }
+
+    private void setBubbleDataGeocodingData(final Location lastFix) {
+        Runnable geocoderTask = new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    if (geocoder != null) {
+                        List<Address> addresses = geocoder.getFromLocation(lastFix.getLatitude(), lastFix.getLongitude(), 1);
+                        if (addresses != null && !addresses.isEmpty()) {
+                            final Address addr = addresses.get(0);
+                            Message msg = uiHandler.obtainMessage(UI_MSG_SET_ADDRESS, addr);
+                            uiHandler.sendMessage(msg);
+                        }
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "MyLocation Geocoder Error : " + e.getMessage());
+                }
+
+            }
+        };
+
+        if (runOnFirstFixExecutor != null) {
+            runOnFirstFixExecutor.execute(geocoderTask);
+        } else {
+            Log.w(TAG, "runOnFirstFixExecutor is null : Could not run setBubbleData()");
         }
     }
 

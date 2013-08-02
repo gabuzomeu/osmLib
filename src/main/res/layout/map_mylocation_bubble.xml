@@ -83,7 +83,6 @@
     <ImageView
         android:id="@+id/map_mylocation_dialogView_gpsStatus_image"
         style="@style/mylocation_dialog_text"
-        android:layout_above="@id/map_mylocation_dialogView_block_coord"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:contentDescription="Gps Status"

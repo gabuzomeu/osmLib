@@ -86,7 +86,7 @@ public class MyAppTilesProviders {
             "https://ssl_tiles.cloudmade.com/%s/%d/%d/%d/%d/%d%s?token=%s");
 
     public static final OnlineTileSourceBase MAPNIK_SCALE_2 = new XYTileSourceScaleTTBox(
-             2, "MapnikScale2", "Mapnik Scale 2", TileSourceFactory.MAPNIK );
+             2, "MapnikScale2", "Mapnik (Zoom x2)", TileSourceFactory.MAPNIK );
     //public static final OnlineTileSourceBase MAPNIK_SCALE_3 = new XYTileSourceScaleTTBox(
     //        3, "MapnikScale3", "Mapnik Scale 3", TileSourceFactory.MAPNIK  );
 
