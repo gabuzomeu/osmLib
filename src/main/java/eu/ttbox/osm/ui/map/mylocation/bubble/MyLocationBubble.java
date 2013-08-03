@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import eu.ttbox.osm.R;
 import eu.ttbox.osm.core.ExternalIntents;
+import eu.ttbox.osm.core.layout.BubbleLimitLinearLayout;
 import eu.ttbox.osm.ui.map.mylocation.CompassEnum;
 
 public class MyLocationBubble extends FrameLayout {
@@ -43,7 +44,7 @@ public class MyLocationBubble extends FrameLayout {
 
     public MyLocationBubble(Context context) {
         super(context);
-        layout = new LinearLayout(context);
+        layout = new BubbleLimitLinearLayout(context, DEFAULT_BUBBLE_WIDTH);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.map_mylocation_bubble, layout);
 
@@ -65,10 +66,10 @@ public class MyLocationBubble extends FrameLayout {
             }
         });
         // Frame
-        float densityMultiplier = context.getResources().getDisplayMetrics().density;
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.NO_GRAVITY;
-        params.width = (int)(DEFAULT_BUBBLE_WIDTH*densityMultiplier);
+        // float densityMultiplier = context.getResources().getDisplayMetrics().density;
+       // params.width = (int)(DEFAULT_BUBBLE_WIDTH*densityMultiplier);
         addView(layout, params);
     }
 
@@ -192,5 +193,7 @@ public class MyLocationBubble extends FrameLayout {
     public void setDisplayGeoLoc(boolean displayGeoLoc) {
         this.displayGeoLoc = displayGeoLoc;
     }
+
+
 
 }

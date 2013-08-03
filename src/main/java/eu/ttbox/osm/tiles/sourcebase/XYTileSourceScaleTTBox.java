@@ -49,7 +49,7 @@ public class XYTileSourceScaleTTBox extends XYTileSourceTTBox {
             final Bitmap originalBitmap = BitmapFactory.decodeFile(aFilePath);
             Drawable scaleTile = null;
             if (originalBitmap != null) {
-                Bitmap scaleBitmapTile = Bitmap.createScaledBitmap(originalBitmap, scaleTileSizePixels, scaleTileSizePixels, false);
+                Bitmap scaleBitmapTile = Bitmap.createScaledBitmap(originalBitmap, scaleTileSizePixels, scaleTileSizePixels, true);
                 return new ExpirableBitmapDrawable(scaleBitmapTile);
             } else {
                 // if we couldn't load it then it's invalid - delete it

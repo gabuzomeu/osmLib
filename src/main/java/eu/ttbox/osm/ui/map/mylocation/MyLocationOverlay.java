@@ -803,12 +803,16 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
 
                     } else {
                         mapView.addView(balloonView, balloonViewLayoutParams);
+                        balloonView.setLayoutParams(balloonViewLayoutParams);
                         Log.d(TAG, "onSingleTapUp : addView " + balloonViewLayoutParams);
                     }
                     balloonView.setVisibility(View.VISIBLE);
+                    mapView.bringChildToFront(balloonView);
+
                     // balloonView.setData(lastFix);
                     setBubbleData(lastFix);
 
+                    printMapViewBuuble(  mapView);
 
                     return true;
                 } else {
@@ -824,16 +828,29 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
 
     private boolean hideBubble(MapView mapView) {
         boolean isHide = false;
-        if (balloonView != null && View.GONE != balloonView.getVisibility()) {
+        //if (balloonView != null && View.GONE != balloonView.getVisibility()) {
+        if (balloonView != null ) {
             balloonView.setVisibility(View.GONE);
             //Remove from stack
             mapView.removeView(balloonView);
-          //  balloonViewLayoutParams = null;
+            balloonView = null;
+            balloonViewLayoutParams = null;
             isHide = true;
+            printMapViewBuuble(  mapView);
 
         }
         return isHide;
     }
+
+
+    private void printMapViewBuuble(MapView mapView) {
+        int chidlCount = mapView.getChildCount();
+        Log.d(TAG, "mapView Child "  + chidlCount + " / isvisible : " + (balloonView==null ? "null" : ""+ (balloonView.getVisibility() == View.VISIBLE) ) );
+        for (int i=0; i< chidlCount ; i++) {
+            Log.d(TAG, "mapView Child " + (i+1) + "/"+chidlCount + " : " + mapView.getChildAt(i));
+        }
+    }
+
 
     private MapView.LayoutParams createBubbleLayoutParams(  GeoPoint lastFixAsGeoPoint) {
         // Compute Offset
