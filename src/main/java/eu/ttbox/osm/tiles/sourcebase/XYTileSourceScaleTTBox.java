@@ -4,8 +4,10 @@ package eu.ttbox.osm.tiles.sourcebase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import org.osmdroid.tileprovider.ExpirableBitmapDrawable;
+import org.osmdroid.tileprovider.MapTile;
 import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
 import org.osmdroid.tileprovider.tilesource.XYTileSource;
 import org.slf4j.Logger;
@@ -15,12 +17,14 @@ import java.io.File;
 
 public class XYTileSourceScaleTTBox extends XYTileSourceTTBox {
 
+
     private static final Logger logger = LoggerFactory.getLogger(XYTileSourceScaleTTBox.class);
+    private static final String TAG = "XYTileSourceScaleTTBox";
+
 
     private final String originalPathBase;
     private final int scaleFactor;
     private final int scaleTileSizePixels;
-
 
     public XYTileSourceScaleTTBox(int aScaleFactor, String aName, String displayName, OnlineTileSourceBase otherTiles, String... aBaseUrl) {
         this(otherTiles.pathBase(), aScaleFactor, aName, displayName, otherTiles.getMinimumZoomLevel(), otherTiles.getMaximumZoomLevel(), otherTiles.getTileSizePixels(), otherTiles.imageFilenameEnding(), aBaseUrl);
@@ -31,7 +35,6 @@ public class XYTileSourceScaleTTBox extends XYTileSourceTTBox {
         this.scaleFactor = aScaleFactor;
         this.scaleTileSizePixels = aTileSizePixels * scaleFactor;
         this.originalPathBase = originalPathBase;
-
     }
 
     @Override
@@ -39,12 +42,22 @@ public class XYTileSourceScaleTTBox extends XYTileSourceTTBox {
         return scaleTileSizePixels;
     }
 
+    @Override
     public String pathBase() {
         return originalPathBase;
     }
 
+
+    @Override
+    public String getTileRelativeFilenameString(final MapTile tile) {
+        String relativePath = super.getTileRelativeFilenameString(tile);
+        Log.d(TAG, "relativePath : " + relativePath);
+        return relativePath;
+    }
+
     @Override
     public Drawable getDrawable(final String aFilePath) {
+        Log.d(TAG, "getDrawable : " + aFilePath);
         try {
             final Bitmap originalBitmap = BitmapFactory.decodeFile(aFilePath);
             Drawable scaleTile = null;

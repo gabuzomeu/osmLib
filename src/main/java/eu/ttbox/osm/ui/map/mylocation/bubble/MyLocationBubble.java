@@ -44,7 +44,7 @@ public class MyLocationBubble extends FrameLayout {
 
     public MyLocationBubble(Context context) {
         super(context);
-        layout = new BubbleLimitLinearLayout(context, DEFAULT_BUBBLE_WIDTH);
+        layout =  new LinearLayout(context); //new BubbleLimitLinearLayout(context, DEFAULT_BUBBLE_WIDTH);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.map_mylocation_bubble, layout);
 
@@ -68,8 +68,8 @@ public class MyLocationBubble extends FrameLayout {
         // Frame
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.NO_GRAVITY;
-        // float densityMultiplier = context.getResources().getDisplayMetrics().density;
-       // params.width = (int)(DEFAULT_BUBBLE_WIDTH*densityMultiplier);
+         float densityMultiplier = context.getResources().getDisplayMetrics().density;
+        params.width = (int)(DEFAULT_BUBBLE_WIDTH*densityMultiplier);
         addView(layout, params);
     }
 
