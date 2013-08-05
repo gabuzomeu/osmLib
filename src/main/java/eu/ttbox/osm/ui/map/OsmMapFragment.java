@@ -25,9 +25,10 @@ import java.util.List;
 import eu.ttbox.osm.ui.map.mylocation.MyLocationOverlay2;
 
 
-public abstract class MapFragment extends Fragment {
+public abstract class OsmMapFragment extends Fragment {
 
-    private static final String TAG = "MapFragment";
+    private static final String TAG = "OsmMapFragment";
+    
     // Map
     public MapController mapController;
     public MapView mapView;
