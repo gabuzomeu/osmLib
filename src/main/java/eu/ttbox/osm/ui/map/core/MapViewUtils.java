@@ -15,7 +15,23 @@ import eu.ttbox.osm.ui.map.mylocation.MyLocationOverlay;
 public class MapViewUtils {
 
     private static final Point TEMP_POINT = new Point();
-    
+
+    /**
+     * Calculate rotation diff D, that R (rotate) + D = T (targetRotate)
+     * D is between -180, 180
+     * @param rotate
+     * @return
+     */
+    public static float unifyRotationTo360(float rotate) {
+        while(rotate < 0){
+            rotate += 360;
+        }
+        while(rotate > 360){
+            rotate -= 360;
+        }
+        return rotate;
+    }
+
     /**
      * Animated equivalent to {@link MapController#scrollBy(int, int)}. Scroll
      * by a given amount using the default animation, in pixels.
