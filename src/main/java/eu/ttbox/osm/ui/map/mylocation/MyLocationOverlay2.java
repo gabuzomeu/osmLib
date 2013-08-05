@@ -70,8 +70,8 @@ import microsoft.mappoint.TileSystem;
 /**
  * <a href="http://android-developers.blogspot.fr/2011/06/deep-dive-into-location.html">location</a>
  */
-public class MyLocationOverlay2 extends Overlay  implements SensorEventListener, LocationListener
-        , OsmAndLocationProvider.OsmAndLocationListener, OsmAndLocationProvider.OsmAndCompassListener
+public class MyLocationOverlay2 extends Overlay  implements
+         OsmAndLocationProvider.OsmAndLocationListener, OsmAndLocationProvider.OsmAndCompassListener
         , SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final boolean DEBUGMODE = false;
@@ -112,11 +112,13 @@ public class MyLocationOverlay2 extends Overlay  implements SensorEventListener,
     private final Point tapPointScreenCoords = new Point();
     private final Rect tapPointHitTestRect = new Rect();
     private final BlinkingDrawable blinkDrawable;
+
     private final Callable<Void> blinkCallable = new Callable<Void>() {
 
         @Override
         public Void call() throws Exception {
             DIRECTION_ARROW_SELECTED = DIRECTION_ARROW_ON;
+            mapViewInvalidate(dirtyRectForLocationDirection);
             if (isMyLocationEnabled() && (runOnFirstFixExecutor != null)) {
                 runOnFirstFixExecutor.schedule(blinkCallableOff, 1l, TimeUnit.SECONDS);
             }
@@ -127,6 +129,7 @@ public class MyLocationOverlay2 extends Overlay  implements SensorEventListener,
         @Override
         public Void call() throws Exception {
             DIRECTION_ARROW_SELECTED = DIRECTION_ARROW;
+            mapViewInvalidate(dirtyRectForLocationDirection);
             if (isMyLocationEnabled() && (runOnFirstFixExecutor != null)) {
                 doBlink();
             }
@@ -326,19 +329,6 @@ public class MyLocationOverlay2 extends Overlay  implements SensorEventListener,
 
     }
 
-    @Override
-    public void onSensorChanged(final SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-            if (event.values != null) {
-                int currentAzimuth = getDisplayAzimuth();
-                if (dirtyLastAzimuth != currentAzimuth) {
-                    mapViewInvalidate(dirtyRectForLocationDirection);
-                    dirtyLastAzimuth = currentAzimuth;
-                    //  Log.d(TAG, "onSensorChanged [" + dirtyLastAzimuth + "] Map invalidate : " + dirtyRectForLocationDirection);
-                }
-            }
-        }
-    }
 
     @Override
     public void updateCompassValue(float value) {
@@ -346,46 +336,24 @@ public class MyLocationOverlay2 extends Overlay  implements SensorEventListener,
         if (dirtyLastAzimuth != currentAzimuth) {
             mapViewInvalidate(dirtyRectForLocationDirection);
             dirtyLastAzimuth = currentAzimuth;
-            //  Log.d(TAG, "onSensorChanged [" + dirtyLastAzimuth + "] Map invalidate : " + dirtyRectForLocationDirection);
+         //   Log.d(TAG, "onSensorChanged [" + dirtyLastAzimuth + "] Map invalidate : " + dirtyRectForLocationDirection);
         }
     }
 
-    @Override
-    @Deprecated
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    }
 
-    @Override
-    @Deprecated
-    public void onLocationChanged(final Location location) {
-        if (mFollow) {
-            animateToLastFix();
-        } else {
-            mapViewInvalidate(dirtyRectForLocationAccuracy); // redraw the my location icon
-            // Log.d(TAG, "onLocationChanged [" + location + "] mapViewInvalidate : " + dirtyRectForLocationAccuracy);
-        }
-        // Update Bubble
-        setBubbleDataWithStickyBubble(location);
-
-        // run On first Fix
-        if (!runOnFirstFix.isEmpty()) {
-            for (final Runnable runnable : runOnFirstFix) {
-                runOnFirstFixExecutor.execute(runnable);
-            }
-            runOnFirstFix.clear();
-        }
-    }
 
     @Override
     public void onLocationChanged(final OsmLocation location) {
         if (mFollow) {
+            mapViewInvalidate(dirtyRectForLocationAccuracy);
             animateToLastFix();
         } else {
             mapViewInvalidate(dirtyRectForLocationAccuracy); // redraw the my location icon
-            // Log.d(TAG, "onLocationChanged [" + location + "] mapViewInvalidate : " + dirtyRectForLocationAccuracy);
+            Log.d(TAG, "onLocationChanged [" + location + "] mapViewInvalidate : " + dirtyRectForLocationAccuracy);
         }
         // Update Bubble
-        setBubbleDataWithStickyBubble(location.getLocation());
+        Location lastLoc = location!=null ? location.getLocation() : null;
+        setBubbleDataWithStickyBubble(lastLoc);
 
         // run On first Fix
         if (!runOnFirstFix.isEmpty()) {
@@ -424,22 +392,11 @@ public class MyLocationOverlay2 extends Overlay  implements SensorEventListener,
         }
     }
 
-    @Override
-    public void onProviderDisabled(final String provider) {
-    }
 
-    @Override
-    public void onProviderEnabled(final String provider) {
-    }
-
-    @Override
-    public void onStatusChanged(final String provider, final int status, final Bundle extras) {
-    }
 
     private void doBlink() {
         if (isMyLocationEnabled() && runOnFirstFixExecutor != null) {
-
-            runOnFirstFixExecutor.schedule(blinkCallable, 1l, TimeUnit.SECONDS);
+             runOnFirstFixExecutor.schedule(blinkCallable, 1l, TimeUnit.SECONDS);
         } else {
             Log.w(TAG, "runOnFirstFixExecutor is null : Could not run doBlink()");
         }
@@ -479,6 +436,7 @@ public class MyLocationOverlay2 extends Overlay  implements SensorEventListener,
     public boolean enableCompass() {
         boolean result = true;
       //  result = mOrientationListener.startListening(this);
+         mLocationListener.addCompassListener(this);
          mLocationListener.registerOrUnregisterCompassListener(true);
         return result;
     }
@@ -489,6 +447,7 @@ public class MyLocationOverlay2 extends Overlay  implements SensorEventListener,
     // @Override
     public void disableCompass() {
     //    mOrientationListener.stopListening();
+        mLocationListener.removeCompassListener(this);
         mLocationListener.registerOrUnregisterCompassListener(false);
     }
 
@@ -512,6 +471,7 @@ public class MyLocationOverlay2 extends Overlay  implements SensorEventListener,
         this.mDrawMyLocationEnabled.set(true);
         //result = mLocationListener.startListening(this);
         mLocationListener.resumeAllUpdates();
+        mLocationListener.addLocationListener(this);
         result = true;
         enableCompass();
 
@@ -563,6 +523,7 @@ public class MyLocationOverlay2 extends Overlay  implements SensorEventListener,
 //        if (!mDrawMyLocationEnabled.get()) {
 //            return  ;
 //        }
+        mLocationListener.removeLocationListener(this);
         disableCompass();
         mLocationListener.pauseAllUpdates();
 //        mLocationListener.stopListening();

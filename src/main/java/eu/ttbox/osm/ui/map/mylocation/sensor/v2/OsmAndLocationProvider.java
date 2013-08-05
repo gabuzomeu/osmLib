@@ -419,6 +419,7 @@ public class OsmAndLocationProvider implements SensorEventListener {
                 lastTimeGPSLocationFixed = location.getTime();
             }
             //if(!locationSimulation.isRouteAnimating()) {
+                Log.d(TAG, "gpsListener : " + location);
                 setLocation(convertLocation(location, app));
             //}
         }
@@ -457,6 +458,7 @@ public class OsmAndLocationProvider implements SensorEventListener {
             // double check about use only gps
             // that strange situation but it could happen?
             //if (!useOnlyGPS() && !locationSimulation.isRouteAnimating()) {
+                Log.d(TAG, "networkListener : " + location);
                 setLocation(convertLocation(location, app));
             //}
         }
