@@ -65,7 +65,6 @@ public class MyLocationListenerProxy implements LocationListener {
 
 	@Override
 	public void onLocationChanged(final Location location) {
-		if (Log.isLoggable(TAG, Log.DEBUG))
 		Log.d(TAG, String.format("onLocationChanged  [%s] : %s", location.getProvider(), location));
 
 		// ??? ignore temporary non-gps fix ???
@@ -159,8 +158,7 @@ public class MyLocationListenerProxy implements LocationListener {
 	public Location getLastKnownLocation() {
 		Location lastKnownLocation = LocationUtils.getLastKnownLocation(locationManager);
 		if (lastKnownLocation != null) {
-			if (Log.isLoggable(TAG, Log.DEBUG))
-				Log.d(TAG, String.format("Use LastKnownLocation with provider [%s] : %s", lastKnownLocation.getProvider(), lastKnownLocation));
+	        Log.d(TAG, String.format("Use LastKnownLocation with provider [%s] : %s", lastKnownLocation.getProvider(), lastKnownLocation));
 			if (lastFix == null) {
 				defineLocation(lastKnownLocation);
 			}

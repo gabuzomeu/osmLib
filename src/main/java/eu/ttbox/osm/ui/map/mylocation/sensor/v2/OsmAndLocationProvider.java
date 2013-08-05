@@ -16,6 +16,9 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Surface;
+
+import org.osmdroid.util.GeoPoint;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,13 +27,14 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import eu.ttbox.osm.ui.map.core.MapViewUtils;
+import eu.ttbox.osm.ui.map.mylocation.sensor.LocationUtils;
 
 public class OsmAndLocationProvider implements SensorEventListener {
 
     private static String TAG = "OsmAndLocationProvider";
 
     public interface OsmAndLocationListener {
-        void updateLocation( OsmLocation location);
+        void onLocationChanged( OsmLocation location);
     }
 
     public interface OsmAndCompassListener {
@@ -90,8 +94,13 @@ public class OsmAndLocationProvider implements SensorEventListener {
     private List<OsmAndCompassListener> compassListeners = new ArrayList<OsmAndLocationProvider.OsmAndCompassListener>();
     private GpsStatus.Listener gpsStatusListener;
     private float[] mRotationM =  new float[9];
+
+    // Config
     private AtomicBoolean USE_MAGNETIC_FIELD_SENSOR_COMPASS;
     private AtomicBoolean uSE_FILTER_FOR_COMPASS;
+
+    //Status
+    private AtomicBoolean isLocationEnable = new AtomicBoolean(false);
 
     public OsmAndLocationProvider( Application app) {
         this.app = app;
@@ -104,6 +113,8 @@ public class OsmAndLocationProvider implements SensorEventListener {
     }
 
     public void resumeAllUpdates() {
+        isLocationEnable.set(true);
+
         final LocationManager service = (LocationManager) app.getSystemService(Context.LOCATION_SERVICE);
         service.addGpsStatusListener(getGpsStatusListener(service));
         try {
@@ -337,11 +348,11 @@ public class OsmAndLocationProvider implements SensorEventListener {
     }
 
     private float calcScreenOrientationCorrection(float val) {
-        if (currentScreenOrientation == 1) {
+        if (currentScreenOrientation == Surface.ROTATION_90) {
             val += 90;
-        } else if (currentScreenOrientation == 2) {
+        } else if (currentScreenOrientation == Surface.ROTATION_180 ) {
             val += 180;
-        } else if (currentScreenOrientation == 3) {
+        } else if (currentScreenOrientation == Surface.ROTATION_270 ) {
             val -= 90;
         }
         return val;
@@ -395,7 +406,7 @@ public class OsmAndLocationProvider implements SensorEventListener {
 
     private void updateLocation(OsmLocation loc ) {
         for(OsmAndLocationListener l : locationListeners){
-            l.updateLocation(loc);
+            l.onLocationChanged(loc);
         }
     }
 
@@ -465,6 +476,7 @@ public class OsmAndLocationProvider implements SensorEventListener {
     };
 
     private void stopLocationRequests() {
+        isLocationEnable.set(false);
         LocationManager service = (LocationManager) app.getSystemService(Context.LOCATION_SERVICE);
         service.removeGpsStatusListener(gpsStatusListener);
         service.removeUpdates(gpsListener);
@@ -623,6 +635,19 @@ public class OsmAndLocationProvider implements SensorEventListener {
 //    }
 
     public OsmLocation getLastKnownLocation() {
+        // Ask All Sensor, This is not the last know location
+        /*
+        if (location== null) {
+            LocationManager locationManager = (LocationManager) app.getSystemService(Context.LOCATION_SERVICE);
+            Location lastKnownLocation = LocationUtils.getLastKnownLocation(locationManager);
+            if (lastKnownLocation != null) {
+                Log.d(TAG, String.format("Use LastKnownLocation with provider [%s] : %s", lastKnownLocation.getProvider(), lastKnownLocation));
+                if (location == null) {
+                    OsmLocation loc = convertLocation(lastKnownLocation, app);
+                    setLocation(loc);
+                }
+            }
+        }*/
         return location;
     }
 
@@ -643,5 +668,26 @@ public class OsmAndLocationProvider implements SensorEventListener {
         public boolean fixed = false;
     }
 
+    public OsmLocation getLastFix() {
+        return location;
+    }
+
+    public GeoPoint getLastFixAsGeoPoint() {
+        GeoPoint geoPoint = location!=null ? location.getLocationAsGeoPoint(): null;
+        return geoPoint;
+    }
+
+    public boolean isFixLocation() {
+        return location!=null;
+    }
+
+    public boolean isProviderEnabled(String provider){
+        LocationManager locationManager = (LocationManager) app.getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(provider);
+    }
+
+    public boolean isMyLocationEnabled() {
+        return isLocationEnable.get();
+    }
 
 }

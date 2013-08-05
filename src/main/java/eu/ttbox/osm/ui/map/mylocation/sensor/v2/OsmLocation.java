@@ -13,16 +13,25 @@ public class OsmLocation {
 
 
     public OsmLocation(Location location) {
-        this.location = location;
+        super();
+        setLocation(location);
     }
 
     public Location getLocation() {
         return location;
     }
 
+    public GeoPoint getLocationAsGeoPoint() {
+        return locationAsGeoPoint;
+    }
+
     public void setLocation(Location location) {
         this.location = location;
-        this.locationAsGeoPoint = GeoLocHelper.convertLocationAsGeoPoint(location, locationAsGeoPoint);;
+        if (location!=null) {
+            this.locationAsGeoPoint = GeoLocHelper.convertLocationAsGeoPoint(location, locationAsGeoPoint);
+        } else {
+            this.locationAsGeoPoint = null;
+        }
     }
 
     public float distanceTo(OsmLocation otherLoc) {
