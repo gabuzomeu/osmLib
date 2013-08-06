@@ -45,14 +45,13 @@ public abstract class OsmMapFragment extends Fragment {
     // ===========================================================
 
 
-    public void initMap(){
+    public void initMap() {
         ActivityManager activityManager = (ActivityManager) getActivity().getSystemService(Context.ACTIVITY_SERVICE);
         // Map Controler
         this.mResourceProxy = new DefaultResourceProxyImpl(getActivity().getApplicationContext());
         ITileSource tileSource = getPreferenceMapViewTileSource();
         this.mapView = MapViewFactory.createOsmMapView(getActivity().getApplicationContext(), mResourceProxy, tileSource, activityManager);
         this.mapController = mapView.getController();
-
     }
 
 
@@ -128,7 +127,7 @@ public abstract class OsmMapFragment extends Fragment {
         }
     }
 
-    protected ITileSource getPreferenceMapViewTileSource(SharedPreferences privateSharedPreferences) {
+    public ITileSource getPreferenceMapViewTileSource(SharedPreferences privateSharedPreferences) {
         final String tileSourceName = privateSharedPreferences.getString(MapConstants.PREFS_TILE_SOURCE, TileSourceFactory.DEFAULT_TILE_SOURCE.name());
         ITileSource tileSource = null;
         try {
@@ -274,6 +273,13 @@ public abstract class OsmMapFragment extends Fragment {
         boolean result = (miniMapOverlay!=null && mapView.getOverlays().contains(miniMapOverlay));
         return result;
     }
+
+
+    // ===========================================================
+    // Map Action
+    // ===========================================================
+
+
 
 }
 
