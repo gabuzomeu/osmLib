@@ -10,6 +10,8 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import eu.ttbox.osm.core.GeoLocHelper;
+import eu.ttbox.osm.core.LocationUtils;
+
 /**
  *  {@link http://android-developers.blogspot.fr/2011/06/deep-dive-into-location.html}
  *  

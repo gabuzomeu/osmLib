@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import eu.ttbox.osm.ui.map.core.MapViewUtils;
-import eu.ttbox.osm.ui.map.mylocation.sensor.LocationUtils;
 
 public class OsmAndLocationProvider implements SensorEventListener {
 

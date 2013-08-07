@@ -1,4 +1,4 @@
-package eu.ttbox.osm.ui.map.mylocation.sensor;
+package eu.ttbox.osm.core;
 
 import java.util.List;
 
@@ -38,6 +38,11 @@ public class LocationUtils {
         Location lastKnownLocation = getLastKnownLocation(locationManager);
         GeoPoint myGeoPoint = GeoLocHelper.convertLocationAsGeoPoint(lastKnownLocation);
         return myGeoPoint;
+    }
+
+
+    public static boolean isGpsLocationProviderIsEnable(LocationManager locationManage) {
+        return locationManage.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     /**

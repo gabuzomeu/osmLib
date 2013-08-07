@@ -37,7 +37,7 @@ public class MapViewUtils {
      * by a given amount using the default animation, in pixels.
      * <p>
      * <strong>Limitations</strong>: This method internally uses
-     * {@link MapController#animateTo(com.google.android.maps.GeoPoint)} which
+     * {@link MapController#animateTo( GeoPoint)} which
      * doesn't animate anything if the point is really far (in pixels) from the
      * current point. In this case, nothing will be animated at all.
      * 

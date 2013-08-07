@@ -74,6 +74,8 @@ public class MyLocationOverlay2 extends Overlay  implements
          OsmAndLocationProvider.OsmAndLocationListener, OsmAndLocationProvider.OsmAndCompassListener
         , SharedPreferences.OnSharedPreferenceChangeListener {
 
+    private static final String TAG = "MyLocationOverlay2";
+
     public static final boolean DEBUGMODE = false;
     // Message Handler
     protected static final int UI_MSG_SET_ADDRESS = 0;
@@ -82,7 +84,7 @@ public class MyLocationOverlay2 extends Overlay  implements
      * merely allocating an Object, and can still be synchronized on.
      */
     static final Object[] sDataLock = new Object[0];
-    private static final String TAG = "MyLocationOverlay";
+
     private static final int INDEX_FIRST = 0;
     private static final int INDEX_SECOND = 1;
     public static boolean isJb16 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
@@ -349,7 +351,7 @@ public class MyLocationOverlay2 extends Overlay  implements
             animateToLastFix();
         } else {
             mapViewInvalidate(dirtyRectForLocationAccuracy); // redraw the my location icon
-            Log.d(TAG, "onLocationChanged [" + location + "] mapViewInvalidate : " + dirtyRectForLocationAccuracy);
+           // Log.d(TAG, "onLocationChanged [" + location + "] mapViewInvalidate : " + dirtyRectForLocationAccuracy);
         }
         // Update Bubble
         Location lastLoc = location!=null ? location.getLocation() : null;
@@ -388,7 +390,7 @@ public class MyLocationOverlay2 extends Overlay  implements
         if (geoPoint != null) {
             // mMapController.animateTo(geoPoint, animateToAnimationType);
             mMapController.setCenter(geoPoint);
-            Log.d(TAG, "MyLocation animateToLastFix mapController : animateTo " + geoPoint);
+          //  Log.d(TAG, "MyLocation animateToLastFix mapController : animateTo " + geoPoint);
         }
     }
 
