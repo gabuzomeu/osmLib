@@ -96,7 +96,7 @@ public class OsmAndLocationProvider implements SensorEventListener {
 
     // Config
     private AtomicBoolean USE_MAGNETIC_FIELD_SENSOR_COMPASS;
-    private AtomicBoolean uSE_FILTER_FOR_COMPASS;
+    private AtomicBoolean USE_FILTER_FOR_COMPASS;
 
     //Status
     private AtomicBoolean isLocationEnable = new AtomicBoolean(false);
@@ -105,10 +105,23 @@ public class OsmAndLocationProvider implements SensorEventListener {
         this.app = app;
        // navigationInfo = new NavigationInfo(app);
       //  settings = app.getSettings();
-        USE_MAGNETIC_FIELD_SENSOR_COMPASS = new AtomicBoolean(true);
-        uSE_FILTER_FOR_COMPASS = new AtomicBoolean(true);
+        USE_FILTER_FOR_COMPASS = new AtomicBoolean(true);
+        USE_MAGNETIC_FIELD_SENSOR_COMPASS = isUseMagneticFieldSensorCompass();
        // currentPositionHelper = new CurrentPositionHelper(app);
        // locationSimulation = new OsmAndLocationSimulation(app, this);
+    }
+
+    private AtomicBoolean isUseMagneticFieldSensorCompass() {
+        SensorManager sensorMgr = (SensorManager) app.getSystemService(Context.SENSOR_SERVICE);
+        Sensor s = sensorMgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        if (s != null ) {
+            return new AtomicBoolean(true);
+        }
+        s = sensorMgr.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        if (s != null ) {
+            return new AtomicBoolean(true);
+        }
+        return new AtomicBoolean(false);
     }
 
     public void resumeAllUpdates() {
@@ -160,6 +173,7 @@ public class OsmAndLocationProvider implements SensorEventListener {
         gpsInfo.fixed = fixed;
         gpsInfo.foundSatellites = n;
         gpsInfo.usedSatellites = u;
+        Log.d(TAG, "updateGPSInfo : " + gpsInfo);
     }
 
     public GPSInfo getGPSInfo(){
@@ -318,7 +332,7 @@ public class OsmAndLocationProvider implements SensorEventListener {
                 lastValSin = (float) Math.sin(valRad);
                 lastValCos = (float) Math.cos(valRad);
                 // lastHeadingCalcTime = System.currentTimeMillis();
-                boolean filter = uSE_FILTER_FOR_COMPASS.get(); //USE_MAGNETIC_FIELD_SENSOR_COMPASS.get();
+                boolean filter = USE_FILTER_FOR_COMPASS.get(); //USE_MAGNETIC_FIELD_SENSOR_COMPASS.get();
                 if (filter) {
                     filterCompassValue();
                 } else {
@@ -667,6 +681,15 @@ public class OsmAndLocationProvider implements SensorEventListener {
         public int foundSatellites = 0;
         public int usedSatellites = 0;
         public boolean fixed = false;
+
+        @Override
+        public String toString() {
+            return "GPSInfo{" +
+                    "fixed=" + fixed +
+                    ", usedSatellites=" + usedSatellites +
+                    ", foundSatellites=" + foundSatellites +
+                    '}';
+        }
     }
 
     public OsmLocation getLastFix() {

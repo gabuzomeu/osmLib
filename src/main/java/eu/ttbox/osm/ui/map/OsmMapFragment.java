@@ -544,7 +544,11 @@ public abstract class OsmMapFragment extends Fragment {
             myLocation.enableMyLocation(true);
             Log.d(TAG, "Ask centerOnMyPosition = do enableMyLocation");
         } else{
-            myLocation.enableFollowLocation();
+            if (!myLocation.isFollowLocationEnabled()) {
+                myLocation.enableFollowLocation();
+            } else {
+                uiMapHandler.sendEmptyMessage(UI_MAPMSG_MAP_ZOOM_MAX);
+            }
         }
 //        mapView.getScroller().forceFinishedforceFinished(true);
         myLocation.animateToLastFix();

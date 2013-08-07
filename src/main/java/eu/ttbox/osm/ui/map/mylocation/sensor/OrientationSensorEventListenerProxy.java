@@ -5,6 +5,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
+@Deprecated
 public class OrientationSensorEventListenerProxy implements SensorEventListener {
 
     private final SensorManager mSensorManager;

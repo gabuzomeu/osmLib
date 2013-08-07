@@ -68,6 +68,7 @@ import microsoft.mappoint.TileSystem;
  * {@link http
  * ://android-developers.blogspot.fr/2011/06/deep-dive-into-location.html}
  */
+@Deprecated
 public class MyLocationOverlay extends Overlay implements SensorEventListener, LocationListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final boolean DEBUGMODE = false;

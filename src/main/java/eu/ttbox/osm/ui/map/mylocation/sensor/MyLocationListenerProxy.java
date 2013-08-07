@@ -16,6 +16,7 @@ import eu.ttbox.osm.core.LocationUtils;
  *  {@link http://android-developers.blogspot.fr/2011/06/deep-dive-into-location.html}
  *  
  */
+@Deprecated
 public class MyLocationListenerProxy implements LocationListener {
 
 	private static final String TAG = "LocationListenerProxy";
