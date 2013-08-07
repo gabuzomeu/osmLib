@@ -17,6 +17,7 @@ import org.osmdroid.ResourceProxy;
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.BoundingBoxE6;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
@@ -523,15 +524,32 @@ public abstract class OsmMapFragment extends Fragment {
 
     public void centerOnLocation(Location location) {
         if (location!=null) {
-            // Center
             GeoPoint geoPoint =  GeoLocHelper.convertLocationAsGeoPoint(location);
-            if (geoPoint!=null) {
-                mapController.setCenter(geoPoint);
-                Log.d(TAG, "centerOnLocation : " + geoPoint);
-            }
-            // Zoom
             int accuracy = (int)location.getAccuracy();
-            // TODO Compute correct Zoom
+            centerOnLocation(geoPoint, accuracy);
+        }
+    }
+
+    public void centerOnLocation( GeoPoint geoPoint,  int accuracy ) {
+       // Center
+        if (geoPoint!=null) {
+           mapController.setCenter(geoPoint);
+           Log.d(TAG, "centerOnLocation : " + geoPoint);
+        }
+        // Zoom
+        // <a href="http://wiki.openstreetmap.org/wiki/Zoom_levels">Zoom levels</a>
+        if (geoPoint!=null) {
+            BoundingBoxE6 boundyBox = mapView.getBoundingBox();
+            int diagInM =  boundyBox.getDiagonalLengthInMeters();
+            if (accuracy>diagInM) {
+                // compute zooem
+                // TODO accuracy/diagInM;
+                int wantedZoom = mapView.getZoomLevel() -1;
+                // Send Zoom Request
+                Message msg = uiMapHandler.obtainMessage(UI_MAPMSG_MAP_ZOOM_MAX);
+                msg.obj = wantedZoom;
+                uiMapHandler.sendMessage(msg);
+            }
         }
     }
 
