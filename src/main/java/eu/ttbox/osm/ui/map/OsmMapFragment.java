@@ -395,9 +395,10 @@ public abstract class OsmMapFragment extends Fragment {
     // ===========================================================
 
     public MyLocationOverlay2 switchOverlayMyLocation() {
-        boolean toAdd = isOverlayMyLocation():
-        addOverlayMyLocation()
+        boolean toAdd = isOverlayMyLocation();
+       return  addOverlayMyLocation(!toAdd);
     }
+    
     public MyLocationOverlay2 addOverlayMyLocation(boolean toAdd) {
         if (toAdd) {
             // Add
