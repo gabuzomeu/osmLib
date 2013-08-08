@@ -320,7 +320,7 @@ public abstract class OsmMapFragment extends Fragment {
             if (isMyLocationEnabled) {
                 this.myLocation.enableMyLocation();
             }
-            this.myLocation.enableCompass(isCompassEnabled);
+          //  this.myLocation.enableCompass(isCompassEnabled);
         }
 
         Log.d(TAG, "--- Map isMyLocationEnabled : " + isMyLocationEnabled);
