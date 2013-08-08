@@ -26,6 +26,8 @@ public class XYTileSourceScaleTTBox extends XYTileSourceTTBox {
     private final int scaleFactor;
     private final int scaleTileSizePixels;
 
+    private final boolean isScale;
+
     public XYTileSourceScaleTTBox(int aScaleFactor, String aName, String displayName, OnlineTileSourceBase otherTiles, String... aBaseUrl) {
         this(otherTiles.pathBase(), aScaleFactor, aName, displayName, otherTiles.getMinimumZoomLevel(), otherTiles.getMaximumZoomLevel(), otherTiles.getTileSizePixels(), otherTiles.imageFilenameEnding(), aBaseUrl);
     }
@@ -33,6 +35,7 @@ public class XYTileSourceScaleTTBox extends XYTileSourceTTBox {
     public XYTileSourceScaleTTBox(String originalPathBase, int aScaleFactor, String aName, String displayName, int aZoomMinLevel, int aZoomMaxLevel, int aTileSizePixels, String aImageFilenameEnding, String... aBaseUrl) {
         super(aName, displayName, aZoomMinLevel, aZoomMaxLevel, aTileSizePixels, aImageFilenameEnding, aBaseUrl);
         this.scaleFactor = aScaleFactor;
+        this.isScale = aScaleFactor!= 1;
         this.scaleTileSizePixels = aTileSizePixels * scaleFactor;
         this.originalPathBase = originalPathBase;
     }
@@ -61,8 +64,11 @@ public class XYTileSourceScaleTTBox extends XYTileSourceTTBox {
         try {
             final Bitmap originalBitmap = BitmapFactory.decodeFile(aFilePath);
             Drawable scaleTile = null;
-            if (originalBitmap != null) {
-                Bitmap scaleBitmapTile = Bitmap.createScaledBitmap(originalBitmap, scaleTileSizePixels, scaleTileSizePixels, true);
+            if (  originalBitmap != null) {
+                Bitmap scaleBitmapTile =originalBitmap;
+                if (isScale) {
+                    scaleBitmapTile = Bitmap.createScaledBitmap(originalBitmap, scaleTileSizePixels, scaleTileSizePixels, true);
+                }
                 return new ExpirableBitmapDrawable(scaleBitmapTile);
             } else {
                 // if we couldn't load it then it's invalid - delete it
