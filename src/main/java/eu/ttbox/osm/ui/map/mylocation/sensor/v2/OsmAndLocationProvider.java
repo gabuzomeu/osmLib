@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import eu.ttbox.osm.core.LocationUtils;
 import eu.ttbox.osm.ui.map.core.MapViewUtils;
 
 public class OsmAndLocationProvider implements SensorEventListener {
@@ -621,18 +622,17 @@ public class OsmAndLocationProvider implements SensorEventListener {
 
     public OsmLocation getLastKnownLocation() {
         // Ask All Sensor, This is not the last know location
-        /*
         if (location== null) {
             LocationManager locationManager = (LocationManager) app.getSystemService(Context.LOCATION_SERVICE);
             Location lastKnownLocation = LocationUtils.getLastKnownLocation(locationManager);
             if (lastKnownLocation != null) {
                 Log.d(TAG, String.format("Use LastKnownLocation with provider [%s] : %s", lastKnownLocation.getProvider(), lastKnownLocation));
                 if (location == null) {
-                    OsmLocation loc = convertLocation(lastKnownLocation, app);
+                    OsmLocation loc = convertLocation(lastKnownLocation);
                     setLocation(loc);
                 }
             }
-        }*/
+        }
         return location;
     }
 
