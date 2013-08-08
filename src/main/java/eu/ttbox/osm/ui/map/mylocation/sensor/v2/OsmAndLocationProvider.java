@@ -216,8 +216,9 @@ public class OsmAndLocationProvider implements SensorEventListener {
         }
         // find location
         for (String provider : providers) {
-            OsmLocation location = convertLocation(service.getLastKnownLocation(provider), app);
-            if (location != null) {
+            Location locProvider = service.getLastKnownLocation(provider);
+            if (locProvider != null) {
+                OsmLocation location = convertLocation(locProvider);
                 return location;
             }
         }
@@ -252,39 +253,11 @@ public class OsmAndLocationProvider implements SensorEventListener {
         }
     }
 
-    // location not null!
-    private void updateSpeedEmulator(OsmLocation location) {
-        // For network/gps it's bad way (not accurate). It's widely used for testing purposes
-        // possibly keep using only for emulator case
-//        if (location != null) {
-//            if (location.distanceTo(location) > 3) {
-//                float d = location.distanceTo(location);
-//                long time = location.getTime() - location.getTime();
-//                float speed;
-//                if (time == 0) {
-//                    speed = 0;
-//                } else {
-//                    speed = ((float) d * 1000) / time;
-//                }
-//                // Be aware only for emulator ! code is incorrect in case of airplane
-//                if (speed > 100) {
-//                    speed = 100;
-//                }
-//                location.setSpeed(speed);
-//            }
-//        }
-    }
 
     public static boolean isPointAccurateForRouting(OsmLocation loc) {
         return loc != null && (!loc.hasAccuracy() || loc.getAccuracy() < ACCURACY_FOR_GPX_AND_ROUTING * 3 / 2);
     }
 
-    private boolean isRunningOnEmulator() {
-        if (Build.DEVICE.equals("generic")) { //$NON-NLS-1$
-            return true;
-        }
-        return false;
-    }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -433,7 +406,7 @@ public class OsmAndLocationProvider implements SensorEventListener {
             }
             //if(!locationSimulation.isRouteAnimating()) {
                 Log.d(TAG, "gpsListener : " + location);
-                setLocation(convertLocation(location, app));
+                setLocation(convertLocation(location));
             //}
         }
 
@@ -457,9 +430,6 @@ public class OsmAndLocationProvider implements SensorEventListener {
         if((System.currentTimeMillis() - lastTimeGPSLocationFixed) < NOT_SWITCH_TO_NETWORK_WHEN_GPS_LOST_MS) {
             return true;
         }
-       // if(isRunningOnEmulator()) {
-       //     return true;
-       // }
         return false;
     }
 
@@ -472,7 +442,7 @@ public class OsmAndLocationProvider implements SensorEventListener {
             // that strange situation but it could happen?
             //if (!useOnlyGPS() && !locationSimulation.isRouteAnimating()) {
                 Log.d(TAG, "networkListener : " + location);
-                setLocation(convertLocation(location, app));
+                setLocation(convertLocation(location));
             //}
         }
 
@@ -505,7 +475,7 @@ public class OsmAndLocationProvider implements SensorEventListener {
         sensorRegistered = false;
     }
 
-    public static OsmLocation convertLocation(Location l, Application app) {
+    public static OsmLocation convertLocation(Location l) {
         if (l == null) {
             return null;
         }
@@ -580,14 +550,14 @@ public class OsmAndLocationProvider implements SensorEventListener {
         if(location == null){
             updateGPSInfo(null);
         }
-        enhanceLocation(location);
-        scheduleCheckIfGpsLost(location);
+ //       enhanceLocation(location);
+ //       scheduleCheckIfGpsLost(location);
         //final RoutingHelper routingHelper = app.getRoutingHelper();
         // 1. Logging services
-        if (location != null) {
+//        if (location != null) {
 //            app.getSavingTrackHelper().updateLocation(location);
 //            app.getLiveMonitoringHelper().updateLocation(location);
-        }
+//        }
         // 2. accessibility routing
 //        navigationInfo.setLocation(location);
 
@@ -699,6 +669,11 @@ public class OsmAndLocationProvider implements SensorEventListener {
     public GeoPoint getLastFixAsGeoPoint() {
         GeoPoint geoPoint = location!=null ? location.getLocationAsGeoPoint(): null;
         return geoPoint;
+    }
+
+    public Location getLastFixAsLocation() {
+        Location loc = location!=null ? location.getLocation(): null;
+        return loc;
     }
 
     public boolean isFixLocation() {

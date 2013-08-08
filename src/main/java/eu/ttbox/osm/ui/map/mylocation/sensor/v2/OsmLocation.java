@@ -22,17 +22,16 @@ public class OsmLocation {
     }
 
     public GeoPoint getLocationAsGeoPoint() {
+        if ( this.locationAsGeoPoint==null) {
+            this.locationAsGeoPoint = GeoLocHelper.convertLocationAsGeoPoint(location, locationAsGeoPoint);
+        }
         return locationAsGeoPoint;
     }
 
     public void setLocation(Location location) {
         this.location = location;
-        if (location!=null) {
-            this.locationAsGeoPoint = GeoLocHelper.convertLocationAsGeoPoint(location, locationAsGeoPoint);
-        } else {
-            this.locationAsGeoPoint = null;
-        }
-    }
+ // Lazy       this.locationAsGeoPoint = GeoLocHelper.convertLocationAsGeoPoint(location, locationAsGeoPoint);
+     }
 
     public float distanceTo(OsmLocation otherLoc) {
         return (location!=null && otherLoc.location!=null )? this.location.distanceTo(otherLoc.location) : -1;
