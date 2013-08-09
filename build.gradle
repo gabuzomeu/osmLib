@@ -30,13 +30,19 @@ List osmdroid = ['org.osmdroid:osmdroid-android:3.0.10@jar',  'org.osmdroid:osmd
 dependencies {
     compile osmdroid
     compile "com.android.support:support-v13:18.0.+"
-    compile "com.squareup.okhttp:okhttp:1.1.1"
+    compile "com.squareup.okhttp:okhttp:1.1.1" 
 }
 
 android {
     compileSdkVersion 18
     buildToolsVersion "18.0.1"
 
+    debug { 
+    }
+
+    release { 
+    }
+    
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 18
@@ -47,7 +53,7 @@ android.libraryVariants
 publishing { 
     publications { 
         maven(MavenPublication) { 
-            artifact bundleRelease 
+            artifact bundleRelease  
         } 
     } 
 }
