@@ -16,7 +16,9 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.Surface;
+import android.view.WindowManager;
 
 import org.osmdroid.util.GeoPoint;
 
@@ -24,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import eu.ttbox.osm.core.LocationUtils;
@@ -77,10 +80,12 @@ public class OsmAndLocationProvider implements SensorEventListener {
     private Float heading = null;
 
     // Current screen orientation
-    private int currentScreenOrientation;
+    // Screen
+    private final Display mDisplay;
+  //  private int currentScreenOrientation;
 
     private Application app;
- //   private OsmandSettings settings;
+
 
   //  private NavigationInfo navigationInfo;
   //  private CurrentPositionHelper currentPositionHelper;
@@ -90,8 +95,8 @@ public class OsmAndLocationProvider implements SensorEventListener {
 
     private GPSInfo gpsInfo = new GPSInfo();
 
-    private List<OsmAndLocationListener> locationListeners = new ArrayList<OsmAndLocationListener>();
-    private List<OsmAndCompassListener> compassListeners = new ArrayList<OsmAndLocationProvider.OsmAndCompassListener>();
+    private List<OsmAndLocationListener> locationListeners = new CopyOnWriteArrayList<OsmAndLocationListener>();
+    private List<OsmAndCompassListener> compassListeners = new CopyOnWriteArrayList<OsmAndCompassListener>();
     private GpsStatus.Listener gpsStatusListener;
     private float[] mRotationM =  new float[9];
 
@@ -102,14 +107,18 @@ public class OsmAndLocationProvider implements SensorEventListener {
     //Status
     private AtomicBoolean isLocationEnable = new AtomicBoolean(false);
 
-    public OsmAndLocationProvider( Application app) {
-        this.app = app;
+    public OsmAndLocationProvider( Application ctx) {
+        this.app = ctx;
        // navigationInfo = new NavigationInfo(app);
-      //  settings = app.getSettings();
+
         USE_FILTER_FOR_COMPASS = new AtomicBoolean(true);
         USE_MAGNETIC_FIELD_SENSOR_COMPASS = isUseMagneticFieldSensorCompass();
        // currentPositionHelper = new CurrentPositionHelper(app);
        // locationSimulation = new OsmAndLocationSimulation(app, this);
+        // Service
+        // Screen
+        final WindowManager windowManager = (WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE);
+        mDisplay = windowManager.getDefaultDisplay();
     }
 
     private AtomicBoolean isUseMagneticFieldSensorCompass() {
@@ -181,9 +190,9 @@ public class OsmAndLocationProvider implements SensorEventListener {
         return gpsInfo;
     }
 
-    public void updateScreenOrientation(int orientation) {
-        currentScreenOrientation = orientation;
-    }
+//    public void updateScreenOrientation(int orientation) {
+//        currentScreenOrientation = orientation;
+//    }
 
     public void addLocationListener(OsmAndLocationListener listener){
         if(!locationListeners.contains(listener)) {
@@ -335,6 +344,7 @@ public class OsmAndLocationProvider implements SensorEventListener {
     }
 
     private float calcScreenOrientationCorrection(float val) {
+        int currentScreenOrientation = mDisplay.getRotation();
         if (currentScreenOrientation == Surface.ROTATION_90) {
             val += 90;
         } else if (currentScreenOrientation == Surface.ROTATION_180 ) {
@@ -370,19 +380,19 @@ public class OsmAndLocationProvider implements SensorEventListener {
 
     private void updateCompassVal() {
         heading = (float) getAngle(avgValSin, avgValCos);
-        for(OsmAndCompassListener c : compassListeners){
-            c.updateCompassValue(heading.floatValue());
+        if (!compassListeners.isEmpty()) {
+//            if (compassListeners.size()==1) {
+//                OsmAndCompassListener c = compassListeners.get(0);
+//                c.updateCompassValue(heading.floatValue());
+//            } else {
+                for(OsmAndCompassListener c : compassListeners){
+                    c.updateCompassValue(heading.floatValue());
+                }
+//            }
         }
     }
 
     public Float getHeading() {
-//		if (heading != null && lastValSin != avgValSin && System.currentTimeMillis() - lastHeadingCalcTime > 700) {
-//			avgValSin = lastValSin;
-//			avgValCos = lastValCos;
-//			Arrays.fill(previousCompassValuesA, avgValSin);
-//			Arrays.fill(previousCompassValuesB, avgValCos);
-//			updateCompassVal();
-//		}
         return heading;
     }
 
@@ -392,8 +402,15 @@ public class OsmAndLocationProvider implements SensorEventListener {
 
 
     private void updateLocation(OsmLocation loc ) {
-        for(OsmAndLocationListener l : locationListeners){
-            l.onLocationChanged(loc);
+        if (!locationListeners.isEmpty()) {
+//            if (locationListeners.size()==1) {
+//                OsmAndLocationListener l = locationListeners.get(0);
+//                l.onLocationChanged(loc);
+//            } else {
+                for(OsmAndLocationListener l : locationListeners){
+                    l.onLocationChanged(loc);
+                }
+//            }
         }
     }
 

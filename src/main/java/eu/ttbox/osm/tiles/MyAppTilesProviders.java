@@ -87,8 +87,6 @@ public class MyAppTilesProviders {
 
     public static final OnlineTileSourceBase MAPNIK_SCALE_2 = new XYTileSourceScaleTTBox(
              2, "MapnikScale2", "Mapnik (Zoom x2)", TileSourceFactory.MAPNIK , "http://tile.openstreetmap.org/" );
-    //public static final OnlineTileSourceBase MAPNIK_SCALE_3 = new XYTileSourceScaleTTBox(
-    //        3, "MapnikScale3", "Mapnik Scale 3", TileSourceFactory.MAPNIK  );
 
     public static void initTilesSource(Context context) {
         // Remove Tiles
