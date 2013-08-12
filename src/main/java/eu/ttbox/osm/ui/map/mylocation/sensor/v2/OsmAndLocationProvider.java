@@ -344,7 +344,7 @@ public class OsmAndLocationProvider implements SensorEventListener {
     }
 
     private float calcScreenOrientationCorrection(float val) {
-        int currentScreenOrientation = mDisplay.getRotation();
+        int currentScreenOrientation = 0; // TODO mDisplay.getRotation();
         if (currentScreenOrientation == Surface.ROTATION_90) {
             val += 90;
         } else if (currentScreenOrientation == Surface.ROTATION_180 ) {
@@ -418,13 +418,17 @@ public class OsmAndLocationProvider implements SensorEventListener {
 
     private LocationListener gpsListener = new LocationListener() {
         @Override
-        public void onLocationChanged(Location location) {
-            if (location != null) {
-                lastTimeGPSLocationFixed = location.getTime();
+        public void onLocationChanged(Location locationChanged) {
+            if (locationChanged != null) {
+                lastTimeGPSLocationFixed = locationChanged.getTime();
+            }
+            Location lastFix = location!=null ? location.getLocation() : null;
+            if (!LocationUtils.isBetterLocation(locationChanged,lastFix )) {
+                return;
             }
             //if(!locationSimulation.isRouteAnimating()) {
-                Log.d(TAG, "gpsListener : " + location);
-                setLocation(convertLocation(location));
+                Log.d(TAG, "gpsListener : " + locationChanged);
+                setLocation(convertLocation(locationChanged));
             //}
         }
 
@@ -455,12 +459,16 @@ public class OsmAndLocationProvider implements SensorEventListener {
     private LocationListener networkListener = new LocationListener() {
 
         @Override
-        public void onLocationChanged(Location location) {
+        public void onLocationChanged(Location locationChanged) {
             // double check about use only gps
             // that strange situation but it could happen?
             //if (!useOnlyGPS() && !locationSimulation.isRouteAnimating()) {
-                Log.d(TAG, "networkListener : " + location);
-                setLocation(convertLocation(location));
+            Log.d(TAG, "networkListener : " + locationChanged);
+            Location lastFix = location!=null ? location.getLocation() : null;
+            if (!LocationUtils.isBetterLocation(locationChanged,lastFix )) {
+                return;
+            }
+                setLocation(convertLocation(locationChanged));
             //}
         }
 

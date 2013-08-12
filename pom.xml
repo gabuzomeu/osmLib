@@ -79,7 +79,7 @@
 
 		<!-- Release -->
         <maven-release-plugin.version>2.4.1</maven-release-plugin.version>
-		<android-maven-plugin.version>3.6.0</android-maven-plugin.version> <!-- 3.5.1 -->
+		<android-maven-plugin.version>3.6.1</android-maven-plugin.version> <!-- 3.5.1 -->
 		<android.sdk.platform>18</android.sdk.platform>
 		<sign.alias>android</sign.alias>
 
