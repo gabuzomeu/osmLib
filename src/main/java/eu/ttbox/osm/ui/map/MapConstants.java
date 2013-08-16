@@ -14,6 +14,7 @@ public class MapConstants {
     public static final String PREFS_SHOW_OVERLAY_MINIMAP = "miniMap";
     public static final String PREFS_SHOW_OVERLAY_SCALEBAR = "scaleBar";
 
+    public static final String PREFS_SAVE_DATE_IN_MS = "saveDateInMs";
 
 
 }

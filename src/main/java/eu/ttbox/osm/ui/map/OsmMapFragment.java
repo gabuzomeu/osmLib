@@ -218,6 +218,7 @@ public abstract class OsmMapFragment extends Fragment {
         Log.d(TAG, "--- ---------------------------- ---");
         Log.d(TAG, "--- Save Map Preference          ---");
         Log.d(TAG, "--- ---------------------------- ---");
+        outState.putLong(MapConstants.PREFS_SAVE_DATE_IN_MS, System.currentTimeMillis());
         // Tile
         String tileProviderName = mapView.getTileProvider().getTileSource().name();
         outState.putString(MapConstants.PREFS_TILE_SOURCE, tileProviderName);
