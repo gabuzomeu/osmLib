@@ -453,7 +453,7 @@ public class MyLocationOverlay2 extends Overlay  implements
         mLocationListener.registerOrUnregisterCompassListener(false);
     }
 
-    // TODO Bug In null pointer in MyLocationOverlay.java:347
+
     public boolean enableMyLocation(boolean isEnable) {
         if (isEnable) {
             return enableMyLocation();
@@ -463,8 +463,7 @@ public class MyLocationOverlay2 extends Overlay  implements
         return true;
     }
 
-    // @Override
-    public boolean enableMyLocation() {
+     public  boolean enableMyLocation() {
         if (mDrawMyLocationEnabled.get()) {
             // Is already enabled
             return true;
@@ -486,7 +485,7 @@ public class MyLocationOverlay2 extends Overlay  implements
                 // mMapController.animateTo(myLocGeoPoint,
                 // animateToAnimationType);
                 mMapController.setCenter(myLocGeoPoint);
-                Log.d(TAG, "MyLocation enableMyLocation mapController : setCenter " + myLocGeoPoint);
+                Log.d(TAG, "MyLocation isFollowLocationEnabled setCenter : " + myLocGeoPoint);
             }
         }
 
@@ -517,10 +516,7 @@ public class MyLocationOverlay2 extends Overlay  implements
         return result;
     }
 
-    /**
-     * Disable location updates
-     */
-    // @Override
+
     public void disableMyLocation() {
 //        if (!mDrawMyLocationEnabled.get()) {
 //            return  ;

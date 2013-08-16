@@ -72,10 +72,11 @@ public abstract class OsmMapFragment extends Fragment {
                             if (myLocation != null) {
                                 myLocation.disableFollowLocation();
                             }
-                            Log.d(TAG, "uiHandler mapController : animateTo " + geoPoint);
+                            Log.d(TAG, "uiHandler center to GeoPoint : " + geoPoint);
                             mapController.setCenter(geoPoint);
                             int zoom = (mapView!=null && mapView.getTileProvider() !=null )  ? mapView.getTileProvider().getMaximumZoomLevel() : -1;
                             if (zoom>0) {
+                                Log.d(TAG, "uiHandler Set GeoPoint Zoom Level : " + zoom);
                                mapController.setZoom(zoom);
                             }
                         }
@@ -84,6 +85,7 @@ public abstract class OsmMapFragment extends Fragment {
                     case UI_MAPMSG_MAP_ZOOM_MAX: {
                         Integer msgObj = msg.obj!=null ? (Integer) msg.obj : mapView.getTileProvider().getMaximumZoomLevel();
                         int maxZoom =  msgObj.intValue();
+                        Log.d(TAG, "uiHandler Set Zoom Level : " + maxZoom);
                         mapController.setZoom(maxZoom);
                     }
                     break;
@@ -123,7 +125,6 @@ public abstract class OsmMapFragment extends Fragment {
 
     }
 
-
     public abstract ITileSource getPreferenceMapViewTile();
 
 
@@ -133,16 +134,11 @@ public abstract class OsmMapFragment extends Fragment {
 
     @Override
     public void onResume() {
-
         Log.i(TAG, "### ### ### ### ### onResume call ### ### ### ### ###");
-
         super.onResume();
-
         // read preference
       //  ITileSource tileSource = getPreferenceMapViewTile();
       //  mapView.setTileSource(tileSource);
-
-
 
         // Overlay MyLocation
         if (myLocation != null) {
@@ -285,7 +281,7 @@ public abstract class OsmMapFragment extends Fragment {
                 int scrollX = savedInstanceState.getInt(MapConstants.PREFS_SCROLL_X, Integer.MIN_VALUE);
                 int scrollY = savedInstanceState.getInt(MapConstants.PREFS_SCROLL_Y, Integer.MIN_VALUE);
                 if (Integer.MIN_VALUE != scrollX && Integer.MIN_VALUE != scrollY) {
-                    Log.d(TAG, "--- Map scrollXY : " + scrollX + ";" + scrollY);
+                    Log.d(TAG, "--- Map scrollXY center : " + scrollX + ";" + scrollY);
                     mapView.scrollTo(scrollX, scrollY);
                 }
             }
@@ -337,7 +333,7 @@ public abstract class OsmMapFragment extends Fragment {
             final LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
             GeoPoint geoPoint = LocationUtils.getLastKnownLocationAsGeoPoint(locationManager);
             if (geoPoint != null) {
-                Log.d(TAG, "--- Map LastKnownLocation : " + geoPoint);
+                Log.d(TAG, "--- Map Center on LastPos : " + geoPoint);
                 mapController.setCenter(geoPoint);
             }
         }
@@ -526,19 +522,22 @@ public abstract class OsmMapFragment extends Fragment {
         if (location!=null) {
             GeoPoint geoPoint =  GeoLocHelper.convertLocationAsGeoPoint(location);
             int accuracy = (int)location.getAccuracy();
+            Log.d(TAG, "centerOnLocation Location: " + location + " with accuracy +/- " + accuracy + " m.");
             centerOnLocation(geoPoint, accuracy);
         }
     }
-
+    public void centerOnLocation( GeoPoint geoPoint ) {
+        centerOnLocation(geoPoint, -1);
+    }
     public void centerOnLocation( GeoPoint geoPoint,  int accuracy ) {
        // Center
         if (geoPoint!=null) {
            mapController.setCenter(geoPoint);
-           Log.d(TAG, "centerOnLocation : " + geoPoint);
+           Log.d(TAG, "centerOnLocation geoPoint: " + geoPoint + " with accuracy +/- " + accuracy + " m.");
         }
         // Zoom
         // <a href="http://wiki.openstreetmap.org/wiki/Zoom_levels">Zoom levels</a>
-        if (geoPoint!=null) {
+        if (accuracy>-1  && geoPoint!=null) {
             BoundingBoxE6 boundyBox = mapView.getBoundingBox();
             int diagInM =  boundyBox.getDiagonalLengthInMeters();
             if (accuracy>diagInM) {
