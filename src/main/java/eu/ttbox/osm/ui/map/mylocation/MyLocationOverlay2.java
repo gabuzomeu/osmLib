@@ -653,8 +653,7 @@ public class MyLocationOverlay2 extends Overlay  implements
 
     public int getAzimuth() {
 //        return mOrientationListener.getAzimuth();
-        Float heading =  mLocationListener.getHeading();
-        int azimuth = heading!=null? heading.intValue() : 0;
+        int azimuth = (int) mLocationListener.getDisplayAzimut();
         return azimuth;
 //        return  mLocationListener.getHeading();
     }

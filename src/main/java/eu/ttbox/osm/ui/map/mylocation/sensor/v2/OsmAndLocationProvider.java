@@ -308,7 +308,7 @@ public class OsmAndLocationProvider implements SensorEventListener {
                         return;
                     }
                 }
-                val = calcScreenOrientationCorrection(val);
+                //val = calcScreenOrientationCorrection(val);
                 val = calcGeoMagneticCorrection(val);
 
                 float valRad = (float) (val / 180f * Math.PI);
@@ -343,8 +343,8 @@ public class OsmAndLocationProvider implements SensorEventListener {
         return val;
     }
 
-    private float calcScreenOrientationCorrection(float val) {
-        int currentScreenOrientation = 0; // TODO mDisplay.getRotation();
+    public float calcScreenOrientationCorrection(float val) {
+        int currentScreenOrientation = mDisplay.getRotation();
         if (currentScreenOrientation == Surface.ROTATION_90) {
             val += 90;
         } else if (currentScreenOrientation == Surface.ROTATION_180 ) {
@@ -394,6 +394,14 @@ public class OsmAndLocationProvider implements SensorEventListener {
 
     public Float getHeading() {
         return heading;
+    }
+
+    public float getDisplayAzimut() {
+        float val = 0;
+        if (heading!=null) {
+            val = calcScreenOrientationCorrection(heading.floatValue());
+        }
+        return val;
     }
 
     private float getAngle(float sinA, float cosA) {
