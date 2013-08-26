@@ -107,6 +107,7 @@ public class MyLocationOverlay2 extends Overlay  implements
     private final int mCompassCenterX = 35;
     private final int mCompassCenterY = 35;
     private final int mCompassRadius = 20;
+
     // to avoid allocations during onDraw
     private final Point mMapCoords = new Point();
     private final Matrix directionRotater = new Matrix();

@@ -1,6 +1,8 @@
 package eu.ttbox.osm.tiles;
 
 import android.content.Context;
+import android.view.Display;
+import android.view.WindowManager;
 
 import org.osmdroid.ResourceProxy;
 import org.osmdroid.tileprovider.tilesource.CloudmadeTileSource;
@@ -88,6 +90,8 @@ public class MyAppTilesProviders {
     public static final OnlineTileSourceBase MAPNIK_SCALE_2 = new XYTileSourceScaleTTBox(
              2, "MapnikScale2", "Mapnik (Zoom x2)", TileSourceFactory.MAPNIK , "http://tile.openstreetmap.org/" );
 
+    public static OnlineTileSourceBase MAPNIK_SCALE_AUTO ;
+
     public static void initTilesSource(Context context) {
         // Remove Tiles
         ArrayList<ITileSource> tileSources = TileSourceFactory.getTileSources();
@@ -130,6 +134,14 @@ public class MyAppTilesProviders {
 
         addTilesIfNotContainsInSource(MAPNIK_SCALE_2);
       //  addTilesIfNotContainsInSource(MAPNIK_SCALE_3);
+// Screen
+        if (MAPNIK_SCALE_AUTO==null) {
+            float densityMultiplier = context.getResources().getDisplayMetrics().density;
+            MAPNIK_SCALE_AUTO = new XYTileSourceScaleTTBox(
+                    2, "MapnikScaleDensity", "Mapnik (Zoom x" +densityMultiplier +
+                    ")", TileSourceFactory.MAPNIK , "http://tile.openstreetmap.org/" );
+        }
+        addTilesIfNotContainsInSource(MAPNIK_SCALE_AUTO);
 
         // addTilesIfNotContainsInSource(CLOUDMADE_SSL_TILES);
 
