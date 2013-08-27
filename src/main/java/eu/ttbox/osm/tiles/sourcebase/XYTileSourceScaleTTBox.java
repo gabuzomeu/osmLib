@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
+import org.osmdroid.ResourceProxy;
 import org.osmdroid.tileprovider.ExpirableBitmapDrawable;
 import org.osmdroid.tileprovider.MapTile;
 import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
@@ -19,24 +20,30 @@ public class XYTileSourceScaleTTBox extends XYTileSourceTTBox {
 
 
     private static final Logger logger = LoggerFactory.getLogger(XYTileSourceScaleTTBox.class);
+
     private static final String TAG = "XYTileSourceScaleTTBox";
 
 
     private final String originalPathBase;
-    private final int scaleFactor;
+    private final float scaleFactor;
     private final int scaleTileSizePixels;
 
     private final boolean isScale;
 
-    public XYTileSourceScaleTTBox(int aScaleFactor, String aName, String displayName, OnlineTileSourceBase otherTiles, String... aBaseUrl) {
-        this(otherTiles.pathBase(), aScaleFactor, aName, displayName, otherTiles.getMinimumZoomLevel(), otherTiles.getMaximumZoomLevel(), otherTiles.getTileSizePixels(), otherTiles.imageFilenameEnding(), aBaseUrl);
+    public XYTileSourceScaleTTBox(float aScaleFactor, String aName,   XYTileSourceTTBox otherTiles ) {
+        this(otherTiles.pathBase(), aScaleFactor, aName,  otherTiles.getDisplayName(), otherTiles.getMinimumZoomLevel(), otherTiles.getMaximumZoomLevel(), otherTiles.getTileSizePixels(), otherTiles.imageFilenameEnding(), otherTiles.getBaseUrls() );
     }
 
-    public XYTileSourceScaleTTBox(String originalPathBase, int aScaleFactor, String aName, String displayName, int aZoomMinLevel, int aZoomMaxLevel, int aTileSizePixels, String aImageFilenameEnding, String... aBaseUrl) {
+
+    public XYTileSourceScaleTTBox(float aScaleFactor, String aName, String displayName, OnlineTileSourceBase otherTiles, String... aBaseUrl) {
+        this(otherTiles.pathBase(), aScaleFactor, aName,  displayName, otherTiles.getMinimumZoomLevel(), otherTiles.getMaximumZoomLevel(), otherTiles.getTileSizePixels(), otherTiles.imageFilenameEnding(), aBaseUrl);
+    }
+
+    public XYTileSourceScaleTTBox(String originalPathBase, float aScaleFactor, String aName, String displayName, int aZoomMinLevel, int aZoomMaxLevel, int aTileSizePixels, String aImageFilenameEnding, String... aBaseUrl) {
         super(aName, displayName, aZoomMinLevel, aZoomMaxLevel, aTileSizePixels, aImageFilenameEnding, aBaseUrl);
         this.scaleFactor = aScaleFactor;
         this.isScale = aScaleFactor!= 1;
-        this.scaleTileSizePixels = aTileSizePixels * scaleFactor;
+        this.scaleTileSizePixels = Math.round( aTileSizePixels * scaleFactor);
         this.originalPathBase = originalPathBase;
     }
 
@@ -50,6 +57,14 @@ public class XYTileSourceScaleTTBox extends XYTileSourceTTBox {
         return originalPathBase;
     }
 
+    @Override
+    public String localizedName(final ResourceProxy proxy) {
+        String displayName = super.localizedName(proxy);
+        if (isScale) {
+            displayName  = displayName + "(Zoom x" + scaleFactor + ")";
+        }
+        return displayName;
+    }
 
     @Override
     public String getTileRelativeFilenameString(final MapTile tile) {

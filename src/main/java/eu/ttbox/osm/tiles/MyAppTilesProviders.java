@@ -1,8 +1,6 @@
 package eu.ttbox.osm.tiles;
 
 import android.content.Context;
-import android.view.Display;
-import android.view.WindowManager;
 
 import org.osmdroid.ResourceProxy;
 import org.osmdroid.tileprovider.tilesource.CloudmadeTileSource;
@@ -57,11 +55,11 @@ public class MyAppTilesProviders {
             "http://alpha.vectors.cloudmade.com/%s/%d/%d/%d/%d/%d%s?token=%s" //
     );
 
-    public static final OnlineTileSourceBase SKECHBOY_TILES = new XYTileSourceTTBox( //
+    public static final XYTileSourceTTBox SKECHBOY_TILES = new XYTileSourceTTBox( //
             "Skechboy", "Skechboy SPDY", 0, 17, 256, ".png", //
             "https://skechboy.com/maps/"  //
     );
-    public static final OnlineTileSourceBase STAMEN_WATERCOLOR_TILES = new XYTileSourceTTBox( //
+    public static final XYTileSourceTTBox STAMEN_WATERCOLOR_TILES = new XYTileSourceTTBox( //
             "StamenWaterColor", "Stamen Watercolor", 0, 17, 256, ".jpg", //
             "http://a.tile.stamen.com/watercolor/"  //
     );
@@ -75,11 +73,11 @@ public class MyAppTilesProviders {
             "StamenHillShading", "Stamen HillShading",  0, 17, 256, ".png", //
             "http://toolserver.org/~cmarqu/hill/"  //
     );*/
-    public static final OnlineTileSourceBase MAPNIK_BLACK_AND_WHITE_TILES = new XYTileSourceTTBox( //
+    public static final XYTileSourceTTBox MAPNIK_BLACK_AND_WHITE_TILES = new XYTileSourceTTBox( //
             "MapnikBlackAndWhite", "MapNik Black&White", 0, 17, 256, ".png", //
             "http://a.www.toolserver.org/tiles/bw-mapnik/"  //
     );
-    public static final OnlineTileSourceBase MAPNIK_HIKEBIKE_TILES = new XYTileSourceTTBox( //
+    public static final XYTileSourceTTBox MAPNIK_HIKEBIKE_TILES = new XYTileSourceTTBox( //
             "MapnikHikeBike", "MapNik Hike Bike", 0, 17, 256, ".png", //
             "http://toolserver.org/tiles/hikebike/"  //
     );
@@ -87,10 +85,6 @@ public class MyAppTilesProviders {
             "CloudMadeSslTiles", ResourceProxy.string.cloudmade_standard, 0, 18, 256, ".png",
             "https://ssl_tiles.cloudmade.com/%s/%d/%d/%d/%d/%d%s?token=%s");
 
-    public static final OnlineTileSourceBase MAPNIK_SCALE_2 = new XYTileSourceScaleTTBox(
-             2, "MapnikScale2", "Mapnik (Zoom x2)", TileSourceFactory.MAPNIK , "http://tile.openstreetmap.org/" );
-
-    public static OnlineTileSourceBase MAPNIK_SCALE_AUTO ;
 
     public static void initTilesSource(Context context) {
         // Remove Tiles
@@ -124,7 +118,6 @@ public class MyAppTilesProviders {
 
 
         addTilesIfNotContainsInSource(SKECHBOY_TILES);
-
         addTilesIfNotContainsInSource(STAMEN_WATERCOLOR_TILES);
 //        addTilesIfNotContainsInSource(STAMEN_BLACK_AND_WHITE_TILES);
 //        addTilesIfNotContainsInSource(STAMEN_HILL_SHADING_TILES);
@@ -132,21 +125,25 @@ public class MyAppTilesProviders {
         addTilesIfNotContainsInSource(MAPNIK_BLACK_AND_WHITE_TILES);
         addTilesIfNotContainsInSource(MAPNIK_HIKEBIKE_TILES);
 
-        addTilesIfNotContainsInSource(MAPNIK_SCALE_2);
-      //  addTilesIfNotContainsInSource(MAPNIK_SCALE_3);
-// Screen
-        if (MAPNIK_SCALE_AUTO==null) {
-            float densityMultiplier = context.getResources().getDisplayMetrics().density;
-            MAPNIK_SCALE_AUTO = new XYTileSourceScaleTTBox(
-                    2, "MapnikScaleDensity", "Mapnik (Zoom x" +densityMultiplier +
-                    ")", TileSourceFactory.MAPNIK , "http://tile.openstreetmap.org/" );
-        }
-        addTilesIfNotContainsInSource(MAPNIK_SCALE_AUTO);
-
         // addTilesIfNotContainsInSource(CLOUDMADE_SSL_TILES);
-
         // TileSourceFactory.addTileSource(PISTEMAP);
 
+        // Screen Density
+        float densityMultiplier = context.getResources().getDisplayMetrics().density;
+        if (densityMultiplier > 1) {
+            XYTileSourceScaleTTBox MAPNIK_SCALE_AUTO = new XYTileSourceScaleTTBox(
+                    densityMultiplier, "MapnikScaleDensity", "Mapnik",  //
+                    TileSourceFactory.MAPNIK, "http://tile.openstreetmap.org/");
+            addTilesIfNotContainsInSource(MAPNIK_SCALE_AUTO);
+            //
+            XYTileSourceTTBox[] tilesToScales = new XYTileSourceTTBox[]{ //
+                    SKECHBOY_TILES, STAMEN_WATERCOLOR_TILES, MAPNIK_BLACK_AND_WHITE_TILES, MAPNIK_HIKEBIKE_TILES
+            };
+            for (XYTileSourceTTBox tilesToScale : tilesToScales) {
+                XYTileSourceScaleTTBox tileScale = new XYTileSourceScaleTTBox(densityMultiplier, tilesToScale.name() + "ScaleDensity", tilesToScale);
+            }
+        }
+ 
     }
 
     private static boolean addTilesIfNotContainsInSource(OnlineTileSourceBase tile) {
