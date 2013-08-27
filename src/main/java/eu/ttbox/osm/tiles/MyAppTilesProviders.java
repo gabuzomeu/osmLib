@@ -141,9 +141,10 @@ public class MyAppTilesProviders {
             };
             for (XYTileSourceTTBox tilesToScale : tilesToScales) {
                 XYTileSourceScaleTTBox tileScale = new XYTileSourceScaleTTBox(densityMultiplier, tilesToScale.name() + "ScaleDensity", tilesToScale);
+                addTilesIfNotContainsInSource(tileScale);
             }
         }
- 
+
     }
 
     private static boolean addTilesIfNotContainsInSource(OnlineTileSourceBase tile) {
