@@ -107,6 +107,11 @@ public class OsmAndLocationProvider implements SensorEventListener {
     //Status
     private AtomicBoolean isLocationEnable = new AtomicBoolean(false);
 
+
+    // ===========================================================
+    // Constructor
+    // ===========================================================
+
     public OsmAndLocationProvider( Application ctx) {
         this.app = ctx;
        // navigationInfo = new NavigationInfo(app);
@@ -134,6 +139,11 @@ public class OsmAndLocationProvider implements SensorEventListener {
         return new AtomicBoolean(false);
     }
 
+
+    // ===========================================================
+    // Life Cycle
+    // ===========================================================
+
     public void resumeAllUpdates() {
         isLocationEnable.set(true);
 
@@ -152,39 +162,28 @@ public class OsmAndLocationProvider implements SensorEventListener {
         }
     }
 
-    private GpsStatus.Listener getGpsStatusListener(final LocationManager service) {
-        gpsStatusListener = new GpsStatus.Listener() {
-            private GpsStatus gpsStatus;
-            @Override
-            public void onGpsStatusChanged(int event) {
-                gpsStatus = service.getGpsStatus(gpsStatus);
-                updateGPSInfo(gpsStatus);
-                updateLocation(location);
-            }
-        };
-        return gpsStatusListener;
+    private void stopLocationRequests() {
+        isLocationEnable.set(false);
+        LocationManager service = (LocationManager) app.getSystemService(Context.LOCATION_SERVICE);
+        service.removeGpsStatusListener(gpsStatusListener);
+        service.removeUpdates(gpsListener);
+        service.removeUpdates(networkListener);
     }
 
-    private void updateGPSInfo(GpsStatus s) {
-        boolean fixed = false;
-        int n = 0;
-        int u = 0;
-        if (s != null) {
-            Iterator<GpsSatellite> iterator = s.getSatellites().iterator();
-            while (iterator.hasNext()) {
-                GpsSatellite g = iterator.next();
-                n++;
-                if (g.usedInFix()) {
-                    u++;
-                    fixed = true;
-                }
-            }
-        }
-        gpsInfo.fixed = fixed;
-        gpsInfo.foundSatellites = n;
-        gpsInfo.usedSatellites = u;
-        Log.d(TAG, "updateGPSInfo : " + gpsInfo);
+    public void pauseAllUpdates() {
+        stopLocationRequests();
+        SensorManager sensorMgr = (SensorManager) app.getSystemService(Context.SENSOR_SERVICE);
+        sensorMgr.unregisterListener(this);
+        sensorRegistered = false;
     }
+
+
+
+
+
+    // ===========================================================
+    // Accessor
+    // ===========================================================
 
     public GPSInfo getGPSInfo(){
         return gpsInfo;
@@ -330,6 +329,12 @@ public class OsmAndLocationProvider implements SensorEventListener {
         }
     }
 
+
+    // ===========================================================
+    // Compute Correction
+    // ===========================================================
+
+
     private float calcGeoMagneticCorrection(float val) {
         if (previousCorrectionValue == 360 && getLastKnownLocation() != null) {
             OsmLocation l = getLastKnownLocation();
@@ -392,6 +397,11 @@ public class OsmAndLocationProvider implements SensorEventListener {
         }
     }
 
+
+    // ===========================================================
+    // Azimuth
+    // ===========================================================
+
     public Float getHeading() {
         return heading;
     }
@@ -423,36 +433,6 @@ public class OsmAndLocationProvider implements SensorEventListener {
     }
 
 
-
-    private LocationListener gpsListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location locationChanged) {
-            if (locationChanged != null) {
-                lastTimeGPSLocationFixed = locationChanged.getTime();
-            }
-            Location lastFix = location!=null ? location.getLocation() : null;
-            if (!LocationUtils.isBetterLocation(locationChanged,lastFix )) {
-                return;
-            }
-            //if(!locationSimulation.isRouteAnimating()) {
-                Log.d(TAG, "gpsListener : " + locationChanged);
-                setLocation(convertLocation(locationChanged));
-            //}
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-        }
-    };
-
     private boolean useOnlyGPS() {
 //        if(app.getRoutingHelper().isFollowingMode()) {
 //            return true;
@@ -463,51 +443,6 @@ public class OsmAndLocationProvider implements SensorEventListener {
         return false;
     }
 
-    // Working with location listeners
-    private LocationListener networkListener = new LocationListener() {
-
-        @Override
-        public void onLocationChanged(Location locationChanged) {
-            // double check about use only gps
-            // that strange situation but it could happen?
-            //if (!useOnlyGPS() && !locationSimulation.isRouteAnimating()) {
-            Log.d(TAG, "networkListener : " + locationChanged);
-            Location lastFix = location!=null ? location.getLocation() : null;
-            if (!LocationUtils.isBetterLocation(locationChanged,lastFix )) {
-                return;
-            }
-                setLocation(convertLocation(locationChanged));
-            //}
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-        }
-
-    };
-
-    private void stopLocationRequests() {
-        isLocationEnable.set(false);
-        LocationManager service = (LocationManager) app.getSystemService(Context.LOCATION_SERVICE);
-        service.removeGpsStatusListener(gpsStatusListener);
-        service.removeUpdates(gpsListener);
-        service.removeUpdates(networkListener);
-    }
-
-    public void pauseAllUpdates() {
-        stopLocationRequests();
-        SensorManager sensorMgr = (SensorManager) app.getSystemService(Context.SENSOR_SERVICE);
-        sensorMgr.unregisterListener(this);
-        sensorRegistered = false;
-    }
 
     public static OsmLocation convertLocation(Location l) {
         if (l == null) {
@@ -576,50 +511,12 @@ public class OsmAndLocationProvider implements SensorEventListener {
         // app.getRoutingHelper().updateLocation(location);
     }
 
-    public void setLocationFromSimulation(OsmLocation location) {
-        setLocation(location);
-    }
 
-    private void setLocation(OsmLocation location) {
-        if(location == null){
-            updateGPSInfo(null);
-        }
- //       enhanceLocation(location);
- //       scheduleCheckIfGpsLost(location);
-        //final RoutingHelper routingHelper = app.getRoutingHelper();
-        // 1. Logging services
-//        if (location != null) {
-//            app.getSavingTrackHelper().updateLocation(location);
-//            app.getLiveMonitoringHelper().updateLocation(location);
-//        }
-        // 2. accessibility routing
-//        navigationInfo.setLocation(location);
-
-        // 3. routing
-        OsmLocation updatedLocation = location;
-//        if (routingHelper.isFollowingMode()) {
-//            if (location == null || isPointAccurateForRouting(location)) {
-                // Update routing position and get location for sticking mode
-//                updatedLocation = routingHelper.setCurrentLocation(location, settings.SNAP_TO_ROAD.get());
-//            }
-//        }
-        this.location = updatedLocation;
-
-        // Update information
-        updateLocation(this.location);
-    }
-
-    private void enhanceLocation(OsmLocation location) {
-        //if (location != null && isRunningOnEmulator()) {
-            // only for emulator
-         //   updateSpeedEmulator(location);
-        //}
-    }
 
     public void checkIfLastKnownLocationIsValid() {
         OsmLocation loc = getLastKnownLocation();
         if (loc != null && (System.currentTimeMillis() - loc.getTime()) > INTERVAL_TO_CLEAR_SET_LOCATION) {
-            setLocation(null);
+            setLocation(null, false);
         }
     }
 
@@ -662,7 +559,7 @@ public class OsmAndLocationProvider implements SensorEventListener {
                 Log.d(TAG, String.format("Use LastKnownLocation with provider [%s] : %s", lastKnownLocation.getProvider(), lastKnownLocation));
                 if (location == null) {
                     OsmLocation loc = convertLocation(lastKnownLocation);
-                    setLocation(loc);
+                    setLocation(loc, false);
                 }
             }
         }
@@ -680,20 +577,6 @@ public class OsmAndLocationProvider implements SensorEventListener {
 //    }
 
 
-    public static class GPSInfo {
-        public int foundSatellites = 0;
-        public int usedSatellites = 0;
-        public boolean fixed = false;
-
-        @Override
-        public String toString() {
-            return "GPSInfo{" +
-                    "fixed=" + fixed +
-                    ", usedSatellites=" + usedSatellites +
-                    ", foundSatellites=" + foundSatellites +
-                    '}';
-        }
-    }
 
     public OsmLocation getLastFix() {
         return location;
@@ -721,5 +604,151 @@ public class OsmAndLocationProvider implements SensorEventListener {
     public boolean isMyLocationEnabled() {
         return isLocationEnable.get();
     }
+
+
+    // ===========================================================
+    // Update Location Event
+    // ===========================================================
+
+    private void setLocation(OsmLocation location, boolean dispatchEvent) {
+        if(location == null){
+            updateGPSInfo(null);
+        }
+        //       enhanceLocation(location);
+        //       scheduleCheckIfGpsLost(location);
+        //final RoutingHelper routingHelper = app.getRoutingHelper();
+        // 1. Logging services
+//        if (location != null) {
+//            app.getSavingTrackHelper().updateLocation(location);
+//            app.getLiveMonitoringHelper().updateLocation(location);
+//        }
+        // 2. accessibility routing
+//        navigationInfo.setLocation(location);
+
+        // 3. routing
+        OsmLocation updatedLocation = location;
+//        if (routingHelper.isFollowingMode()) {
+//            if (location == null || isPointAccurateForRouting(location)) {
+        // Update routing position and get location for sticking mode
+//                updatedLocation = routingHelper.setCurrentLocation(location, settings.SNAP_TO_ROAD.get());
+//            }
+//        }
+        this.location = updatedLocation;
+
+        // Update information
+        if (dispatchEvent) {
+            updateLocation(updatedLocation);
+        }
+    }
+
+    // ===========================================================
+    // Gps Info Event
+    // ===========================================================
+
+
+    private void updateGPSInfo(GpsStatus s) {
+        boolean fixed = false;
+        int n = 0;
+        int u = 0;
+        if (s != null) {
+            Iterator<GpsSatellite> iterator = s.getSatellites().iterator();
+            while (iterator.hasNext()) {
+                GpsSatellite g = iterator.next();
+                n++;
+                if (g.usedInFix()) {
+                    u++;
+                    fixed = true;
+                }
+            }
+        }
+        gpsInfo.fixed = fixed;
+        gpsInfo.foundSatellites = n;
+        gpsInfo.usedSatellites = u;
+        Log.d(TAG, "updateGPSInfo : " + gpsInfo);
+    }
+
+
+
+    // ===========================================================
+    // Listener
+    // ===========================================================
+
+    private GpsStatus.Listener getGpsStatusListener(final LocationManager service) {
+        gpsStatusListener = new GpsStatus.Listener() {
+            private GpsStatus gpsStatus;
+            @Override
+            public void onGpsStatusChanged(int event) {
+                gpsStatus = service.getGpsStatus(gpsStatus);
+                updateGPSInfo(gpsStatus);
+                updateLocation(location);
+            }
+        };
+        return gpsStatusListener;
+    }
+
+    private LocationListener gpsListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location locationChanged) {
+            if (locationChanged != null) {
+                lastTimeGPSLocationFixed = locationChanged.getTime();
+            }
+            Location lastFix = location!=null ? location.getLocation() : null;
+            if (!LocationUtils.isBetterLocation(locationChanged,lastFix )) {
+                return;
+            }
+            //if(!locationSimulation.isRouteAnimating()) {
+            Log.d(TAG, "gpsListener : " + locationChanged);
+            setLocation(convertLocation(locationChanged), true);
+            //}
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
+    };
+
+    // Working with location listeners
+    private LocationListener networkListener = new LocationListener() {
+
+        @Override
+        public void onLocationChanged(Location locationChanged) {
+            // double check about use only gps
+            // that strange situation but it could happen?
+            //if (!useOnlyGPS() && !locationSimulation.isRouteAnimating()) {
+            Log.d(TAG, "networkListener : " + locationChanged);
+            Location lastFix = location!=null ? location.getLocation() : null;
+            if (!LocationUtils.isBetterLocation(locationChanged,lastFix )) {
+                return;
+            }
+            setLocation(convertLocation(locationChanged), true);
+            //}
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
+
+    };
+
+
+    // ===========================================================
+    // Other
+    // ===========================================================
 
 }
