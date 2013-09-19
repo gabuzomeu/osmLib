@@ -86,7 +86,8 @@
     </properties>
 
    <dependencies>
-      <!-- Android -->
+
+       <!-- Android -->
       <dependency>
          <groupId>android</groupId>
          <artifactId>android</artifactId>

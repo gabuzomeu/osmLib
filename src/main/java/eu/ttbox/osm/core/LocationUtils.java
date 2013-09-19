@@ -6,6 +6,8 @@ import org.osmdroid.util.GeoPoint;
 
 import android.location.Location;
 import android.location.LocationManager;
+import android.util.Log;
+
 import eu.ttbox.osm.core.GeoLocHelper;
 
 public class LocationUtils {
@@ -107,5 +109,12 @@ public class LocationUtils {
             return provider2 == null;
         }
         return provider1.equals(provider2);
+    }
+
+    public static boolean isLocationTooOld(Location location,  long nowInMs) {
+        long timeDelta = nowInMs - location.getTime();
+        boolean isSignificantlyOlder = timeDelta >=  LOCALISATION_SIGNIFICATY_NEWER_IN_MS;
+        Log.d(TAG, "isLocationTooOld for delta : " + timeDelta + " ==> " + isSignificantlyOlder);
+        return isSignificantlyOlder;
     }
 }
