@@ -1,4 +1,6 @@
 allprojects {
+   apply plugin: 'maven'
+
    group = 'eu.ttbox.android.osm'
    version = '0.2.0'
 
@@ -24,6 +26,7 @@ allprojects {
             }
         }
     }
+    
 }
 
 buildscript {
@@ -37,9 +40,10 @@ buildscript {
 }
 
 
+apply plugin: 'maven'
 
 apply plugin: 'android-library'
-apply plugin: 'maven'
+
 
 
 repositories {
