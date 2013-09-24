@@ -2,7 +2,7 @@ allprojects {
    apply plugin: 'maven'
 
    group = 'eu.ttbox.android.osm'
-   version = '0.2.0'
+   version = '0.2.1'
 
     repositories {
         mavenLocal()
@@ -53,11 +53,11 @@ repositories {
 
 List osmdroid = ['org.osmdroid:osmdroid-android:3.0.10@jar',  'org.osmdroid:osmdroid-third-party:3.0.10@jar', 'org.slf4j:slf4j-android:1.6.1-RC1@jar']
 
-
 dependencies {
-    compile osmdroid
+    compile osmdroid 
+    
     compile "com.android.support:support-v13:18.0.+"
-    compile "com.squareup.okhttp:okhttp:1.1.1" 
+    compile ('com.squareup.okhttp:okhttp:1.2.+@jar') { transitive = true }
 }
 
 android {
