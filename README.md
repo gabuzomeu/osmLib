@@ -1,6 +1,17 @@
 osmLib
 ======
 
+gradle config : gradle.properties
+====================================
+ttbox.repo.url=file://${user.home}/project/maven-repo
+ttboxSignKeystore=${user.home}/.keystore
+ttboxSignStorepass=
+ttboxSignKeypass=
+
+gradle config : System
+====================================
+export GRADLE_OPTS="-Dorg.gradle.daemon=true"
+
 
 gradle clean assemble publishToMavenLocal
 
