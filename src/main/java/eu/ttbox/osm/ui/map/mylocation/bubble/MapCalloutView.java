@@ -1,10 +1,6 @@
 package eu.ttbox.osm.ui.map.mylocation.bubble;
 
 
-import org.osmdroid.api.IGeoPoint;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.OverlayItem;
-
 import android.content.Context;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -24,6 +20,11 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import org.osmdroid.api.IGeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.OverlayItem;
+
 import eu.ttbox.osm.R;
 import eu.ttbox.osm.ui.map.core.MapViewUtils;
 import eu.ttbox.osm.ui.map.mylocation.drawable.MapCalloutDrawable;

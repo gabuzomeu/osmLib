@@ -2,6 +2,7 @@ package eu.ttbox.osm.ui.map.mylocation;
 
 import android.content.Context;
 import android.content.res.Resources;
+
 import eu.ttbox.osm.R;
 
 public enum CompassEnum {

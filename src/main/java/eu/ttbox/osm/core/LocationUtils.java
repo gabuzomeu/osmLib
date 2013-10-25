@@ -1,14 +1,12 @@
 package eu.ttbox.osm.core;
 
-import java.util.List;
-
-import org.osmdroid.util.GeoPoint;
-
 import android.location.Location;
 import android.location.LocationManager;
 import android.util.Log;
 
-import eu.ttbox.osm.core.GeoLocHelper;
+import org.osmdroid.util.GeoPoint;
+
+import java.util.List;
 
 public class LocationUtils {
 

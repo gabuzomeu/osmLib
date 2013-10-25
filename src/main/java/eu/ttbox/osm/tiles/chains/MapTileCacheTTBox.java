@@ -2,7 +2,6 @@ package eu.ttbox.osm.tiles.chains;
 
 import android.graphics.drawable.Drawable;
 
-import org.osmdroid.tileprovider.LRUMapTileCache;
 import org.osmdroid.tileprovider.MapTile;
 import org.osmdroid.tileprovider.MapTileCache;
 

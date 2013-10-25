@@ -1,12 +1,13 @@
 package eu.ttbox.osm.ui.map.mylocation.dialog;
 
- 
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.provider.Settings;
+
 import eu.ttbox.osm.R;
  
 

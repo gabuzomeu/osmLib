@@ -1,16 +1,5 @@
 package eu.ttbox.osm.tiles;
 
-import org.osmdroid.tileprovider.IMapTileProviderCallback;
-import org.osmdroid.tileprovider.IRegisterReceiver;
-import org.osmdroid.tileprovider.constants.OpenStreetMapTileProviderConstants;
-import org.osmdroid.tileprovider.modules.INetworkAvailablityCheck;
-import org.osmdroid.tileprovider.modules.MapTileDownloaderTTbox;
-import org.osmdroid.tileprovider.modules.MapTileSpdyDownloaderTTbox;
-import org.osmdroid.tileprovider.modules.TileWriter;
-import org.osmdroid.tileprovider.tilesource.ITileSource;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.tileprovider.util.SimpleRegisterReceiver;
-
 import android.annotation.SuppressLint;
 import android.content.ComponentCallbacks;
 import android.content.ComponentCallbacks2;
@@ -18,6 +7,17 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.util.Log;
+
+import org.osmdroid.tileprovider.IMapTileProviderCallback;
+import org.osmdroid.tileprovider.IRegisterReceiver;
+import org.osmdroid.tileprovider.constants.OpenStreetMapTileProviderConstants;
+import org.osmdroid.tileprovider.modules.INetworkAvailablityCheck;
+import org.osmdroid.tileprovider.modules.MapTileSpdyDownloaderTTbox;
+import org.osmdroid.tileprovider.modules.TileWriter;
+import org.osmdroid.tileprovider.tilesource.ITileSource;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.tileprovider.util.SimpleRegisterReceiver;
+
 import eu.ttbox.osm.tiles.chains.MapTileProviderArrayTTbox;
 import eu.ttbox.osm.tiles.core.MapTileFilesystemProviderTTbox;
 

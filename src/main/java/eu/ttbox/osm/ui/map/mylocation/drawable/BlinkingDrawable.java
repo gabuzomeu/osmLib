@@ -1,13 +1,12 @@
 package eu.ttbox.osm.ui.map.mylocation.drawable;
 
-import java.util.concurrent.Callable;
-
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+
 import eu.ttbox.osm.BuildConfig;
 
 /**

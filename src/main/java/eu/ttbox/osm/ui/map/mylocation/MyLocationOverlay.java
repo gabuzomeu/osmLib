@@ -37,10 +37,9 @@ import android.view.WindowManager;
 import org.osmdroid.DefaultResourceProxyImpl;
 import org.osmdroid.ResourceProxy;
 import org.osmdroid.api.IGeoPoint;
+import org.osmdroid.api.IMapController;
 import org.osmdroid.tileprovider.modules.ConfigurablePriorityThreadFactory;
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapController;
-import org.osmdroid.views.MapController.AnimationType;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.MapView.Projection;
 import org.osmdroid.views.overlay.Overlay;
@@ -65,8 +64,7 @@ import eu.ttbox.osm.ui.map.mylocation.sensor.OrientationSensorEventListenerProxy
 import microsoft.mappoint.TileSystem;
 
 /**
- * {@link http
- * ://android-developers.blogspot.fr/2011/06/deep-dive-into-location.html}
+ * <a href="http://android-developers.blogspot.fr/2011/06/deep-dive-into-location.html">Deep dive into location</a>
  */
 @Deprecated
 public class MyLocationOverlay extends Overlay implements SensorEventListener, LocationListener, SharedPreferences.OnSharedPreferenceChangeListener {
@@ -88,7 +86,7 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
     public final MyLocationListenerProxy mLocationListener;
     public final OrientationSensorEventListenerProxy mOrientationListener;
     protected final MapView mMapView;
-    private final MapController mMapController;
+    private final IMapController mMapController;
     private final Display mDisplay;
     private final LocationManager locationManager;
     private final SensorManager mSensorManager;
@@ -155,8 +153,7 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
     protected int DIRECTION_ARROW_CENTER_X;
     protected int DIRECTION_ARROW_CENTER_Y;
     private Context context;
-    // Constante
-    private AnimationType animateToAnimationType = AnimationType.EXPONENTIALDECELERATING;
+
     // private final BitmapDrawable blinkBitmapDrawable;
     // Bubble
     private MyLocationBubble balloonView;

@@ -1,19 +1,20 @@
 package eu.ttbox.osm.tiles.svg;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Picture;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 
 import org.osmdroid.ResourceProxy;
 import org.osmdroid.ResourceProxy.string;
 import org.osmdroid.tileprovider.MapTile;
 import org.osmdroid.tileprovider.tilesource.CloudmadeTileSource;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Picture;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import eu.ttbox.osm.tiles.svg.parser.SVG;
 import eu.ttbox.osm.tiles.svg.parser.SVGParser;
 

@@ -1,13 +1,14 @@
 package eu.ttbox.osm.ui.map;
 
+import android.app.ActivityManager;
+import android.content.Context;
+import android.os.Handler;
+
 import org.osmdroid.ResourceProxy;
 import org.osmdroid.tileprovider.MapTileProviderBase;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.views.MapView;
 
-import android.app.ActivityManager;
-import android.content.Context;
-import android.os.Handler;
 import eu.ttbox.osm.tiles.MapTileProviderTTbox;
 import eu.ttbox.osm.tiles.MyAppTilesProviders;
 

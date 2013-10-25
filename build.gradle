@@ -1,75 +1,95 @@
 allprojects {
-   apply plugin: 'maven'
+    apply plugin: 'maven'
 
-   group = 'eu.ttbox.android.osm'
-   version = '0.2.1'
+    group = 'eu.ttbox.android.osm'
+    version = '0.3.0'
+
+    def isSnapshot = version.endsWith('-SNAPSHOT')
 
     repositories {
         mavenLocal()
         mavenCentral()
         maven {
-           url "https://raw.github.com/gabuzomeu/maven-repo/master/third-parties/"
+            url "https://raw.github.com/gabuzomeu/maven-repo/master/third-parties/"
         }
     }
 
-   def isDevBuild = true
+    def isDevBuild = true
+
+
+
 
     //https://github.com/mircea-pop/git-maven-repo/blob/master/gradle/git.gradle
     uploadArchives {
         repositories {
             if (isDevBuild) {
-                mavenLocal()
-            }else {
-                mavenDeployer() {
-                    repository(url: 'file:${project.buildDir}/../maven-repo/releases')
+                mavenDeployer {
+                    repository(url: "file:///Users/jmorille/.m2/repository/")
+                }
+//                mavenLocal()
+            } else {
+                   mavenDeployer() {
+                   repository(url: 'file:${project.buildDir}/../maven-repo/releases')
                 }
             }
         }
+
+//        repositories {
+//            mavenDeployer {
+//                mavenLocal()
+//                pom.project {
+//                    name 'TBox OSM Lib'
+//                    packaging 'jar'
+//                    description 'OpenStreetMap Lib packaging for TTbox Application'
+//                }
+//            }
+//        }
     }
-    
+
 }
 
 buildscript {
     repositories {
-         mavenLocal()
-         mavenCentral()
+        mavenLocal()
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.5.+'
+        classpath 'com.android.tools.build:gradle:0.6.+'
     }
 }
 
 
 apply plugin: 'maven'
-
 apply plugin: 'android-library'
 
 
 
 repositories {
     mavenLocal()
-    mavenCentral() 
+    mavenCentral()
 }
 
-List osmdroid = ['org.osmdroid:osmdroid-android:3.0.10@jar',  'org.osmdroid:osmdroid-third-party:3.0.10@jar', 'org.slf4j:slf4j-android:1.6.1-RC1@jar']
+
+//List osmdroid = ['org.osmdroid:osmdroid-android:3.0.10@jar',  'org.osmdroid:osmdroid-third-party:3.0.10@jar', 'org.slf4j:slf4j-android:1.6.1-RC1@jar']
+//List osmdroid = ['org.osmdroid:osmdroid-android:4.0@jar', 'org.osmdroid:osmdroid-third-party:4.0@jar', 'org.slf4j:slf4j-android:1.6.1-RC1@jar']
 
 dependencies {
-    compile osmdroid 
-    
+    //compile osmdroid
+    compile 'org.osmdroid:osmdroid-android:4.0@jar'
+    compile ('org.osmdroid:osmdroid-third-party:4.0@jar') { transitive = false }
+    compile 'org.slf4j:slf4j-android:1.6.1-RC1@jar'
+
+
     compile "com.android.support:support-v13:18.0.+"
-    compile ('com.squareup.okhttp:okhttp:1.2.+@jar') { transitive = true }
+    compile('com.squareup.okhttp:okhttp:1.2.+@jar') { transitive = true }
 }
 
 android {
     compileSdkVersion 18
     buildToolsVersion "18.1.1"
 
-    debug { 
-    }
 
-    release { 
-    }
-    
+
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 18

@@ -5,7 +5,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.internal.http.HttpURLConnectionImpl;
 
 import org.osmdroid.tileprovider.MapTile;
 import org.osmdroid.tileprovider.MapTileRequestState;
@@ -27,7 +26,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.zip.GZIPInputStream;
 
 public class MapTileSpdyDownloaderTTbox extends MapTileModuleProviderBase {
 

@@ -1,15 +1,16 @@
 package eu.ttbox.osm.ui.map.core;
 
+import android.graphics.Point;
+import android.graphics.drawable.Drawable;
+import android.view.Gravity;
+import android.widget.Toast;
+
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.MapView.Projection;
 
-import android.graphics.Point;
-import android.graphics.drawable.Drawable;
-import android.view.Gravity;
-import android.widget.Toast;
 import eu.ttbox.osm.ui.map.mylocation.MyLocationOverlay;
 
 public class MapViewUtils {

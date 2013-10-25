@@ -15,11 +15,11 @@ import android.widget.Toast;
 import org.osmdroid.DefaultResourceProxyImpl;
 import org.osmdroid.ResourceProxy;
 import org.osmdroid.api.IGeoPoint;
+import org.osmdroid.api.IMapController;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.BoundingBoxE6;
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MinimapOverlay;
 import org.osmdroid.views.overlay.Overlay;
@@ -29,8 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import eu.ttbox.osm.core.GeoLocHelper;
-import eu.ttbox.osm.ui.map.mylocation.MyLocationOverlay2;
 import eu.ttbox.osm.core.LocationUtils;
+import eu.ttbox.osm.ui.map.mylocation.MyLocationOverlay2;
 
 
 public abstract class OsmMapFragment extends Fragment {
@@ -38,7 +38,7 @@ public abstract class OsmMapFragment extends Fragment {
     private static final String TAG = "OsmMapFragment";
     
     // Map
-    public MapController mapController;
+    public IMapController mapController;
     public MapView mapView;
     public ResourceProxy mResourceProxy;
 

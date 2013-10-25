@@ -1,7 +1,5 @@
 package eu.ttbox.osm.ui.map.mylocation.bubble;
 
-import java.util.Locale;
-
 import android.content.Context;
 import android.location.Address;
 import android.location.Location;
@@ -12,9 +10,11 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import java.util.Locale;
+
 import eu.ttbox.osm.R;
 import eu.ttbox.osm.core.ExternalIntents;
-import eu.ttbox.osm.core.layout.BubbleLimitLinearLayout;
 import eu.ttbox.osm.ui.map.mylocation.CompassEnum;
 
 public class MyLocationBubble extends FrameLayout {

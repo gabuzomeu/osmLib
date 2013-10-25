@@ -1,10 +1,10 @@
 package eu.ttbox.osm.tiles.core;
 
-import org.osmdroid.tileprovider.modules.INetworkAvailablityCheck;
-
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+
+import org.osmdroid.tileprovider.modules.INetworkAvailablityCheck;
 
 public class NetworkAvailabliltyCheck implements INetworkAvailablityCheck   {
 

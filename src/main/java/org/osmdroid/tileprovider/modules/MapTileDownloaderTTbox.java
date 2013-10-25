@@ -1,5 +1,18 @@
 package org.osmdroid.tileprovider.modules;
 
+import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
+import android.util.Log;
+
+import org.osmdroid.tileprovider.MapTile;
+import org.osmdroid.tileprovider.MapTileRequestState;
+import org.osmdroid.tileprovider.tilesource.BitmapTileSourceBase.LowMemoryException;
+import org.osmdroid.tileprovider.tilesource.ITileSource;
+import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
+import org.osmdroid.tileprovider.util.StreamUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -12,19 +25,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.zip.GZIPInputStream;
-
-import org.osmdroid.tileprovider.MapTile;
-import org.osmdroid.tileprovider.MapTileRequestState;
-import org.osmdroid.tileprovider.tilesource.BitmapTileSourceBase.LowMemoryException;
-import org.osmdroid.tileprovider.tilesource.ITileSource;
-import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
-import org.osmdroid.tileprovider.util.StreamUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import android.graphics.drawable.Drawable;
-import android.text.TextUtils;
-import android.util.Log;
 
 public class MapTileDownloaderTTbox extends MapTileModuleProviderBase {
 

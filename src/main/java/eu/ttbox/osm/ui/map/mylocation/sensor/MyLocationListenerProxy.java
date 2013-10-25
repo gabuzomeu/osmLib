@@ -1,14 +1,15 @@
 package eu.ttbox.osm.ui.map.mylocation.sensor;
 
-import java.util.List;
-
-import org.osmdroid.util.GeoPoint;
-
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+
+import org.osmdroid.util.GeoPoint;
+
+import java.util.List;
+
 import eu.ttbox.osm.core.GeoLocHelper;
 import eu.ttbox.osm.core.LocationUtils;
 

@@ -1,8 +1,8 @@
 package eu.ttbox.osm.core;
 
-import org.osmdroid.util.GeoPoint;
-
 import android.location.Location;
+
+import org.osmdroid.util.GeoPoint;
 
 public class GeoLocHelper {
 

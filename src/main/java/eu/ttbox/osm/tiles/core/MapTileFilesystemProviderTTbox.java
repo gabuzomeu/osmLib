@@ -1,6 +1,7 @@
 package eu.ttbox.osm.tiles.core;
 
-import java.io.File;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import org.osmdroid.tileprovider.ExpirableBitmapDrawable;
 import org.osmdroid.tileprovider.IRegisterReceiver;
@@ -15,8 +16,7 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import android.graphics.drawable.Drawable;
-import android.util.Log;
+import java.io.File;
 
 public class MapTileFilesystemProviderTTbox extends MapTileFileStorageProviderBase {
 

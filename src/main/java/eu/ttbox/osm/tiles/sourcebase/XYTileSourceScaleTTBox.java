@@ -10,7 +10,6 @@ import org.osmdroid.ResourceProxy;
 import org.osmdroid.tileprovider.ExpirableBitmapDrawable;
 import org.osmdroid.tileprovider.MapTile;
 import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
-import org.osmdroid.tileprovider.tilesource.XYTileSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +60,7 @@ public class XYTileSourceScaleTTBox extends XYTileSourceTTBox {
     public String localizedName(final ResourceProxy proxy) {
         String displayName = super.localizedName(proxy);
         if (isScale) {
-            displayName  = displayName + "(Zoom x" + scaleFactor + ")";
+            displayName  = displayName + "(x" + scaleFactor + ")";
         }
         return displayName;
     }

@@ -1,14 +1,13 @@
 package eu.ttbox.osm.tiles.chains;
 
 
-import java.util.Collections;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import android.app.ActivityManager;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import org.osmdroid.tileprovider.ExpirableBitmapDrawable;
 import org.osmdroid.tileprovider.IRegisterReceiver;
 import org.osmdroid.tileprovider.MapTile;
-import org.osmdroid.tileprovider.MapTileCache;
 import org.osmdroid.tileprovider.MapTileProviderArray;
 import org.osmdroid.tileprovider.MapTileProviderBase;
 import org.osmdroid.tileprovider.MapTileRequestState;
@@ -17,9 +16,9 @@ import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import android.app.ActivityManager;
-import android.graphics.drawable.Drawable;
-import android.util.Log;
+import java.util.Collections;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MapTileProviderArrayTTbox extends MapTileProviderBase {
 

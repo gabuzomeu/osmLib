@@ -1,10 +1,9 @@
 package eu.ttbox.osm.tiles.chains;
 
-import org.osmdroid.tileprovider.MapTile;
-
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+
+import org.osmdroid.tileprovider.MapTile;
 
 public class TilesLruCacheTTbox extends LruCache<MapTile, Drawable>{
 
