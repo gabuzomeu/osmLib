@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
@@ -139,12 +140,17 @@ public abstract class OsmMapFragment extends Fragment {
         // read preference
       //  ITileSource tileSource = getPreferenceMapViewTile();
       //  mapView.setTileSource(tileSource);
-
+        if (mapView != null) {
+            //  mapView.onResume();
+        }
         // Overlay MyLocation
         if (myLocation != null) {
             myLocation.onResume();
         }
     }
+
+
+
 
 
     @Override
@@ -155,6 +161,10 @@ public abstract class OsmMapFragment extends Fragment {
         if (myLocation != null) {
             myLocation.onPause();
         }
+        if (mapView!=null) {
+           // mapView.onPause();
+        }
+
         super.onPause();
     }
 
@@ -182,6 +192,9 @@ public abstract class OsmMapFragment extends Fragment {
             myLocation.disableCompass();
             myLocation.disableMyLocation();
         }
+        if (mapView!=null) {
+//            mapView.onDestroy();
+        }
         super.onDestroy();
     }
     // ===========================================================
@@ -193,6 +206,9 @@ public abstract class OsmMapFragment extends Fragment {
         Log.d(TAG, "--- ---------------------------- ---");
         Log.d(TAG, "--- on Save Instance State       ---");
         Log.d(TAG, "--- ---------------------------- ---");
+        if (mapView != null) {
+            //  mapView.onSaveInstanceState(outState);
+        }
 
         outState.putString(MapConstants.PREFS_TILE_SOURCE, mapView.getTileProvider().getTileSource().name());
         outState.putInt(MapConstants.PREFS_ZOOM_LEVEL, mapView.getZoomLevel());
@@ -513,9 +529,14 @@ public abstract class OsmMapFragment extends Fragment {
 
     public void myLocationFollow(boolean isFollow) {
         if (isFollow) {
+            if (myLocation==null) {
+              addOverlayMyLocation(true);
+            }
             myLocation.enableMyLocation();
         } else {
-            myLocation.disableFollowLocation();
+            if (myLocation!=null) {
+                myLocation.disableFollowLocation();
+            }
         }
     }
 
@@ -527,9 +548,11 @@ public abstract class OsmMapFragment extends Fragment {
             centerOnLocation(geoPoint, accuracy);
         }
     }
+
     public void centerOnLocation( GeoPoint geoPoint ) {
         centerOnLocation(geoPoint, -1);
     }
+
     public void centerOnLocation( GeoPoint geoPoint,  int accuracy ) {
        // Center
         if (geoPoint!=null) {
