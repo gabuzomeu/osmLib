@@ -15,7 +15,7 @@ allprojects {
     }
 
     def isDevBuild = true
-
+    def userHome = System.getProperty("user.home")
 
 
 
@@ -24,7 +24,7 @@ allprojects {
         repositories {
             if (isDevBuild) {
                 mavenDeployer {
-                    repository(url: "file:///Users/jmorille/.m2/repository/")
+                    repository(url:"file:${userHome}/.m2/repository/")
                 }
 //                mavenLocal()
             } else {
