@@ -476,6 +476,8 @@ public abstract class OsmMapFragment extends Fragment {
             if (miniMapOverlay!=null) {
                 mapView.getOverlays().remove(miniMapOverlay);
                 miniMapOverlay = null;
+            } else {
+                Log.w(TAG, "remove addOverlayMinimap : No miniMapOverlay");
             }
         }
     }
