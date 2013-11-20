@@ -29,6 +29,7 @@ import org.osmdroid.views.overlay.ScaleBarOverlay;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.ttbox.osm.BuildConfig;
 import eu.ttbox.osm.core.GeoLocHelper;
 import eu.ttbox.osm.core.LocationUtils;
 import eu.ttbox.osm.ui.map.mylocation.MyLocationOverlay2;
@@ -37,7 +38,7 @@ import eu.ttbox.osm.ui.map.mylocation.MyLocationOverlay2;
 public abstract class OsmMapFragment extends Fragment {
 
     private static final String TAG = "OsmMapFragment";
-    
+
     // Map
     public IMapController mapController;
     public MapView mapView;
@@ -46,7 +47,7 @@ public abstract class OsmMapFragment extends Fragment {
     // Overlay
     public MyLocationOverlay2 myLocation = null;
     public MinimapOverlay miniMapOverlay = null;
-    public ScaleBarOverlay mScaleBarOverlay= null;
+    public ScaleBarOverlay mScaleBarOverlay = null;
 
 
     // ===========================================================
@@ -59,7 +60,7 @@ public abstract class OsmMapFragment extends Fragment {
     public static final int UI_MAPMSG_MAP_ZOOM_MAX = 11;
 
     private boolean isThreadRunnning() {
-        return mapView!=null;
+        return mapView != null;
     }
 
     private Handler uiMapHandler = new Handler() {
@@ -75,17 +76,17 @@ public abstract class OsmMapFragment extends Fragment {
                             }
                             Log.d(TAG, "uiHandler center to GeoPoint : " + geoPoint);
                             mapController.setCenter(geoPoint);
-                            int zoom = (mapView!=null && mapView.getTileProvider() !=null )  ? mapView.getTileProvider().getMaximumZoomLevel() : -1;
-                            if (zoom>0) {
+                            int zoom = (mapView != null && mapView.getTileProvider() != null) ? mapView.getTileProvider().getMaximumZoomLevel() : -1;
+                            if (zoom > 0) {
                                 Log.d(TAG, "uiHandler Set GeoPoint Zoom Level : " + zoom);
-                               mapController.setZoom(zoom);
+                                mapController.setZoom(zoom);
                             }
                         }
                     }
                     break;
                     case UI_MAPMSG_MAP_ZOOM_MAX: {
-                        Integer msgObj = msg.obj!=null ? (Integer) msg.obj : mapView.getTileProvider().getMaximumZoomLevel();
-                        int maxZoom =  msgObj.intValue();
+                        Integer msgObj = msg.obj != null ? (Integer) msg.obj : mapView.getTileProvider().getMaximumZoomLevel();
+                        int maxZoom = msgObj.intValue();
                         Log.d(TAG, "uiHandler Set Zoom Level : " + maxZoom);
                         mapController.setZoom(maxZoom);
                     }
@@ -100,19 +101,18 @@ public abstract class OsmMapFragment extends Fragment {
                         Toast.makeText(getActivity(), msgToastError, Toast.LENGTH_SHORT).show();
                     }
                     break;
-                    default : {
+                    default: {
                         Log.w(TAG, "Not Handle UI Map Message : " + msg.what);
                     }
                 }
             }
-       }
+        }
     };
 
 
     // ===========================================================
     // Constructor
     // ===========================================================
-
 
 
     public void initMap() {
@@ -138,8 +138,8 @@ public abstract class OsmMapFragment extends Fragment {
         Log.i(TAG, "### ### ### ### ### onResume call ### ### ### ### ###");
         super.onResume();
         // read preference
-      //  ITileSource tileSource = getPreferenceMapViewTile();
-      //  mapView.setTileSource(tileSource);
+        //  ITileSource tileSource = getPreferenceMapViewTile();
+        //  mapView.setTileSource(tileSource);
         if (mapView != null) {
             //  mapView.onResume();
         }
@@ -150,9 +150,6 @@ public abstract class OsmMapFragment extends Fragment {
     }
 
 
-
-
-
     @Override
     public void onPause() {
         Log.i(TAG, "### ### ### ### ### onPause call ### ### ### ### ###");
@@ -161,8 +158,8 @@ public abstract class OsmMapFragment extends Fragment {
         if (myLocation != null) {
             myLocation.onPause();
         }
-        if (mapView!=null) {
-           // mapView.onPause();
+        if (mapView != null) {
+            // mapView.onPause();
         }
 
         super.onPause();
@@ -176,23 +173,21 @@ public abstract class OsmMapFragment extends Fragment {
             tileSource = TileSourceFactory.getTileSource(tileSourceName);
         } catch (final IllegalArgumentException ignore) {
         }
-        if (tileSource==null) {
+        if (tileSource == null) {
             tileSource = TileSourceFactory.DEFAULT_TILE_SOURCE;
         }
         return tileSource;
     }
 
 
-
-
     @Override
     public void onDestroy() {
         Log.i(TAG, "### ### ### ### ### onDestroy call ### ### ### ### ###");
-        if (myLocation!=null) {
+        if (myLocation != null) {
             myLocation.disableCompass();
             myLocation.disableMyLocation();
         }
-        if (mapView!=null) {
+        if (mapView != null) {
 //            mapView.onDestroy();
         }
         super.onDestroy();
@@ -215,8 +210,8 @@ public abstract class OsmMapFragment extends Fragment {
         outState.putInt(MapConstants.PREFS_SCROLL_X, mapView.getScrollX());
         outState.putInt(MapConstants.PREFS_SCROLL_Y, mapView.getScrollY());
         // Status
-        boolean isMyLocationEnabled = myLocation!=null ?  myLocation.isMyLocationEnabled() : false;
-        boolean isCompassEnabled = myLocation!=null ?  myLocation.isCompassEnabled() : false;
+        boolean isMyLocationEnabled = myLocation != null ? myLocation.isMyLocationEnabled() : false;
+        boolean isCompassEnabled = myLocation != null ? myLocation.isCompassEnabled() : false;
         outState.putBoolean(MapConstants.PREFS_SHOW_LOCATION, isMyLocationEnabled);
         outState.putBoolean(MapConstants.PREFS_SHOW_COMPASS, isCompassEnabled);
         // Overlay
@@ -226,8 +221,6 @@ public abstract class OsmMapFragment extends Fragment {
         super.onSaveInstanceState(outState);
         Log.d(TAG, "--- ---------------------------- ---");
     }
-
-
 
 
     public void saveMapPreference(SharedPreferences.Editor outState) {
@@ -240,18 +233,18 @@ public abstract class OsmMapFragment extends Fragment {
         outState.putString(MapConstants.PREFS_TILE_SOURCE, tileProviderName);
         Log.d(TAG, "--- Map TileName : " + tileProviderName);
         // Zoom
-        int zoom =  mapView.getZoomLevel();
+        int zoom = mapView.getZoomLevel();
         Log.d(TAG, "--- Map Zoom : " + zoom);
-        outState.putInt(MapConstants.PREFS_ZOOM_LEVEL,zoom);
+        outState.putInt(MapConstants.PREFS_ZOOM_LEVEL, zoom);
         // Center
         int scrollX = mapView.getScrollX();
         int scrollY = mapView.getScrollY();
         outState.putInt(MapConstants.PREFS_SCROLL_X, scrollX);
-        outState.putInt(MapConstants.PREFS_SCROLL_Y,scrollY);
+        outState.putInt(MapConstants.PREFS_SCROLL_Y, scrollY);
         Log.d(TAG, "--- Map scrollXY : " + scrollX + ";" + scrollY);
         // Status
-        boolean isMyLocationEnabled = myLocation!=null ?  myLocation.isMyLocationEnabled() : false;
-        boolean isCompassEnabled = myLocation!=null ?  myLocation.isCompassEnabled() : false;
+        boolean isMyLocationEnabled = myLocation != null ? myLocation.isMyLocationEnabled() : false;
+        boolean isCompassEnabled = myLocation != null ? myLocation.isCompassEnabled() : false;
         outState.putBoolean(MapConstants.PREFS_SHOW_LOCATION, isMyLocationEnabled);
         outState.putBoolean(MapConstants.PREFS_SHOW_COMPASS, isCompassEnabled);
         Log.d(TAG, "--- Map isMyLocationEnabled : " + isMyLocationEnabled);
@@ -261,12 +254,11 @@ public abstract class OsmMapFragment extends Fragment {
         boolean isOverlayMinimap = isOverlayMinimap();
         boolean isOverlayScaleBar = isOverlayScaleBar();
         outState.putBoolean(MapConstants.PREFS_SHOW_OVERLAY_MINIMAP, isOverlayMinimap);
-        outState.putBoolean(MapConstants.PREFS_SHOW_OVERLAY_SCALEBAR, isOverlayScaleBar );
+        outState.putBoolean(MapConstants.PREFS_SHOW_OVERLAY_SCALEBAR, isOverlayScaleBar);
         Log.d(TAG, "--- Map Overlay  Minimap : " + isOverlayMinimap);
         Log.d(TAG, "--- Map Overlay  ScaleBar : " + isOverlayScaleBar);
         Log.d(TAG, "--- ---------------------------- ---");
     }
-
 
 
     public void saveMapPreference(SharedPreferences privateSharedPreferences) {
@@ -275,21 +267,22 @@ public abstract class OsmMapFragment extends Fragment {
         localEdit.commit();
     }
 
-    public void onRestoreSaveInstanceState(android.os.Bundle savedInstanceState) {
+    public void onRestoreSaveInstanceState(Bundle savedInstanceState) {
+
         Log.d(TAG, "--- ---------------------------- ---");
         Log.d(TAG, "--- Restore SaveInstanceState    ---");
         Log.d(TAG, "--- ---------------------------- ---");
 
-        if (savedInstanceState!=null) {
+        if (savedInstanceState != null) {
             // Tile Source
             String tileName = savedInstanceState.getString(MapConstants.PREFS_TILE_SOURCE);
-            if (tileName!=null) {
+            if (tileName != null) {
                 setMapViewTileSourceName(tileName);
                 Log.d(TAG, "--- Map TileName : " + tileName);
             }
             // Zoom
             int zoom = savedInstanceState.getInt(MapConstants.PREFS_ZOOM_LEVEL, -1);
-            if (zoom>-1) {
+            if (zoom > -1) {
                 mapController.setZoom(zoom);
                 Log.d(TAG, "--- Map Zoom : " + zoom);
             }
@@ -302,6 +295,14 @@ public abstract class OsmMapFragment extends Fragment {
                     mapView.scrollTo(scrollX, scrollY);
                 }
             }
+            // Overlay
+            // ---------------
+            boolean isOverlayMinimap = savedInstanceState.getBoolean(MapConstants.PREFS_SHOW_OVERLAY_MINIMAP, false);
+            boolean isOverlayScaleBar = savedInstanceState.getBoolean(MapConstants.PREFS_SHOW_OVERLAY_SCALEBAR, false);
+            addOverlayMinimap(isOverlayMinimap);
+            addOverlayScaleBar(isOverlayScaleBar);
+            Log.d(TAG, "--- Map Overlay  Minimap : " + isOverlayMinimap);
+            Log.d(TAG, "--- Map Overlay  ScaleBar : " + isOverlayScaleBar);
         }
         Log.d(TAG, "--- ---------------------------- ---");
     }
@@ -320,7 +321,7 @@ public abstract class OsmMapFragment extends Fragment {
         // Zoom 1 is world view
         int zoom = prefs.getInt(MapConstants.PREFS_ZOOM_LEVEL, tileSource.getMaximumZoomLevel());
         mapController.setZoom(zoom);
-        Log.d(TAG, "--- Zoom : " + zoom );
+        Log.d(TAG, "--- Zoom : " + zoom);
 
 
         // My Location
@@ -329,11 +330,11 @@ public abstract class OsmMapFragment extends Fragment {
         boolean isCompassEnabled = prefs.getBoolean(MapConstants.PREFS_SHOW_COMPASS, false);
         addOverlayMyLocation(isMyLocationEnabled);
 
-        if (this.myLocation!=null) {
+        if (this.myLocation != null) {
             if (isMyLocationEnabled) {
                 this.myLocation.enableMyLocation();
             }
-          //  this.myLocation.enableCompass(isCompassEnabled);
+            //  this.myLocation.enableCompass(isCompassEnabled);
         }
 
         Log.d(TAG, "--- Map isMyLocationEnabled : " + isMyLocationEnabled);
@@ -357,7 +358,7 @@ public abstract class OsmMapFragment extends Fragment {
 
         // Overlay
         // ---------------
-        boolean isOverlayMinimap =   prefs.getBoolean(MapConstants.PREFS_SHOW_OVERLAY_MINIMAP, false);
+        boolean isOverlayMinimap = prefs.getBoolean(MapConstants.PREFS_SHOW_OVERLAY_MINIMAP, false);
         boolean isOverlayScaleBar = prefs.getBoolean(MapConstants.PREFS_SHOW_OVERLAY_SCALEBAR, false);
         addOverlayMinimap(isOverlayMinimap);
         addOverlayScaleBar(isOverlayScaleBar);
@@ -378,30 +379,28 @@ public abstract class OsmMapFragment extends Fragment {
     // ===========================================================
 
 
-
     public ITileSource getMapViewTileSource() {
         return mapView.getTileProvider().getTileSource();
     }
 
     public void setMapViewTileSourceName(String tileSourceName) {
         ITileSource tileSource = null;
-        if (tileSourceName!=null && tileSourceName.length()>0) {
+        if (tileSourceName != null && tileSourceName.length() > 0) {
             try {
                 tileSource = TileSourceFactory.getTileSource(tileSourceName);
             } catch (final IllegalArgumentException ignore) {
             }
         }
-        if (tileSource!=null) {
+        if (tileSource != null) {
             mapView.setTileSource(tileSource);
         }
     }
 
     public void setMapViewTileSource(ITileSource tileSource) {
-        IGeoPoint center =  mapView.getMapCenter();
+        IGeoPoint center = mapView.getMapCenter();
         mapView.setTileSource(tileSource);
         mapController.setCenter(center);
     }
-
 
 
     // ===========================================================
@@ -410,23 +409,23 @@ public abstract class OsmMapFragment extends Fragment {
 
     public MyLocationOverlay2 switchOverlayMyLocation() {
         boolean toAdd = isOverlayMyLocation();
-       return  addOverlayMyLocation(!toAdd);
+        return addOverlayMyLocation(!toAdd);
     }
-    
+
     public MyLocationOverlay2 addOverlayMyLocation(boolean toAdd) {
         if (toAdd) {
             // Add
-            if ( this.myLocation==null) {
-                this.myLocation  = new MyLocationOverlay2(getActivity(), this.mapView);
+            if (this.myLocation == null) {
+                this.myLocation = new MyLocationOverlay2(getActivity(), this.mapView);
             }
-            List<Overlay> overlays  =mapView.getOverlays();
+            List<Overlay> overlays = mapView.getOverlays();
             if (!overlays.contains(myLocation)) {
-              //  myLocation.enableMyLocation();
+                //  myLocation.enableMyLocation();
                 overlays.add(myLocation);
             }
         } else {
             // Delete
-            if (myLocation!=null) {
+            if (myLocation != null) {
                 myLocation.disableMyLocation();
                 mapView.getOverlays().remove(myLocation);
             }
@@ -435,14 +434,21 @@ public abstract class OsmMapFragment extends Fragment {
     }
 
     public boolean isOverlayMyLocation() {
-        boolean result = (myLocation!=null && mapView.getOverlays().contains(myLocation));
+        boolean result = (myLocation != null && mapView.getOverlays().contains(myLocation));
         return result;
     }
 
     public void addOverlayScaleBar(boolean toAdd) {
+        List<Overlay> overlays = mapView.getOverlays();
         if (toAdd) {
             // Add
-            if (mScaleBarOverlay==null) {
+            boolean isNotInOverlays = true;
+            if (mScaleBarOverlay == null) {
+                mScaleBarOverlay = searchOverlays(ScaleBarOverlay.class);
+            }
+            if (mScaleBarOverlay != null) {
+                isNotInOverlays = false;
+            } else {
                 this.mScaleBarOverlay = new ScaleBarOverlay(getActivity(), mResourceProxy);
                 this.mScaleBarOverlay.setMetric();
                 // Scale bar tries to draw as 1-inch, so to put it in the top center, set x offset to
@@ -450,43 +456,91 @@ public abstract class OsmMapFragment extends Fragment {
                 this.mScaleBarOverlay.setScaleBarOffset(getResources().getDisplayMetrics().widthPixels
                         / 2 - getResources().getDisplayMetrics().xdpi / 2, 10);
             }
-            mapView.getOverlays().add(mScaleBarOverlay);
+            if (isNotInOverlays) {
+                overlays.add(mScaleBarOverlay);
+            }
         } else {
             // Delete
-            if (mScaleBarOverlay!=null) {
-                mapView.getOverlays().remove(mScaleBarOverlay);
+            if (mScaleBarOverlay != null) {
+                overlays.remove(mScaleBarOverlay);
+                mScaleBarOverlay = null;
             }
         }
     }
 
     public boolean isOverlayScaleBar() {
-        boolean result = (mScaleBarOverlay!=null && mapView.getOverlays().contains(mScaleBarOverlay));
+        boolean result = (mScaleBarOverlay != null && mapView.getOverlays().contains(mScaleBarOverlay));
         return result;
     }
 
     public void addOverlayMinimap(boolean toAdd) {
+        Log.d(TAG, "addOverlayMinimap : " + toAdd);
+        List<Overlay> overlays = mapView.getOverlays();
         if (toAdd) {
+            boolean isNotInOverlays = true;
             // Add
-            if (miniMapOverlay==null) {
-                miniMapOverlay = new MinimapOverlay(getActivity(),  mapView.getTileRequestCompleteHandler());
+            if (miniMapOverlay == null) {
+                miniMapOverlay = searchOverlays(MinimapOverlay.class);
             }
-            mapView.getOverlays().add(miniMapOverlay);
+            if (miniMapOverlay != null) {
+                isNotInOverlays = false;
+            } else {
+                miniMapOverlay = new MinimapOverlay(getActivity(), mapView.getTileRequestCompleteHandler());
+            }
+            if (isNotInOverlays) {
+                overlays.add(miniMapOverlay);
+            }
         } else {
             // Delete
-            if (miniMapOverlay!=null) {
-                mapView.getOverlays().remove(miniMapOverlay);
+            if (miniMapOverlay == null) {
+                miniMapOverlay = searchOverlays(MinimapOverlay.class);
+            }
+            if (miniMapOverlay != null) {
+                boolean isRemove = overlays.remove(miniMapOverlay);
                 miniMapOverlay = null;
-            } else {
-                Log.w(TAG, "remove addOverlayMinimap : No miniMapOverlay");
+                Log.d(TAG, "addOverlayMinimap isRemove : " + isRemove);
             }
         }
     }
 
     public boolean isOverlayMinimap() {
-        boolean result = (miniMapOverlay!=null && mapView.getOverlays().contains(miniMapOverlay));
+        boolean result = (miniMapOverlay != null && mapView.getOverlays().contains(miniMapOverlay));
         return result;
     }
 
+
+    // ===========================================================
+    // Print Overlay
+    // ===========================================================
+
+    public void printOverlays() {
+        List<Overlay> overlays = mapView.getOverlays();
+        int overlayCount = overlays != null ? overlays.size() : 0;
+        Log.d(TAG, "### Map Overlay count : " + overlayCount);
+        Log.d(TAG, "### Map Overlay MiniMap  : " + miniMapOverlay);
+        Log.d(TAG, "### Map Overlay MiniMap Search : " + searchOverlays(MinimapOverlay.class));
+
+        if (overlays != null && !overlays.isEmpty()) {
+            int i = 0;
+            for (Overlay overlay : overlays) {
+                Log.d(TAG, "### Map Overlay " + (++i) +
+                        " : " + overlay);
+            }
+        }
+
+    }
+
+    public <T extends Overlay> T searchOverlays(Class<T> overlayClass) {
+        List<Overlay> overlays = mapView.getOverlays();
+        if (overlays != null && !overlays.isEmpty()) {
+            for (Overlay overlay : overlays) {
+                if (overlayClass.isInstance(overlay)) {
+                    return (T) overlay;
+                }
+            }
+        }
+        return null;
+    }
 
     // ===========================================================
     // Map Configuration
@@ -514,7 +568,6 @@ public abstract class OsmMapFragment extends Fragment {
     }
 
 
-
     public boolean isGpsLocationProviderIsEnable() {
         boolean result = false;
         if (myLocation != null) {
@@ -524,7 +577,6 @@ public abstract class OsmMapFragment extends Fragment {
     }
 
 
-
     // ===========================================================
     // MyLocation Action
     // ===========================================================
@@ -532,45 +584,45 @@ public abstract class OsmMapFragment extends Fragment {
 
     public void myLocationFollow(boolean isFollow) {
         if (isFollow) {
-            if (myLocation==null) {
-              addOverlayMyLocation(true);
+            if (myLocation == null) {
+                addOverlayMyLocation(true);
             }
             myLocation.enableMyLocation();
         } else {
-            if (myLocation!=null) {
+            if (myLocation != null) {
                 myLocation.disableFollowLocation();
             }
         }
     }
 
     public void centerOnLocation(Location location) {
-        if (location!=null) {
-            GeoPoint geoPoint =  GeoLocHelper.convertLocationAsGeoPoint(location);
-            int accuracy = (int)location.getAccuracy();
+        if (location != null) {
+            GeoPoint geoPoint = GeoLocHelper.convertLocationAsGeoPoint(location);
+            int accuracy = (int) location.getAccuracy();
             Log.d(TAG, "centerOnLocation Location: " + location + " with accuracy +/- " + accuracy + " m.");
             centerOnLocation(geoPoint, accuracy);
         }
     }
 
-    public void centerOnLocation( GeoPoint geoPoint ) {
+    public void centerOnLocation(GeoPoint geoPoint) {
         centerOnLocation(geoPoint, -1);
     }
 
-    public void centerOnLocation( GeoPoint geoPoint,  int accuracy ) {
-       // Center
-        if (geoPoint!=null) {
-           mapController.setCenter(geoPoint);
-           Log.d(TAG, "centerOnLocation geoPoint: " + geoPoint + " with accuracy +/- " + accuracy + " m.");
+    public void centerOnLocation(GeoPoint geoPoint, int accuracy) {
+        // Center
+        if (geoPoint != null) {
+            mapController.setCenter(geoPoint);
+            Log.d(TAG, "centerOnLocation geoPoint: " + geoPoint + " with accuracy +/- " + accuracy + " m.");
         }
         // Zoom
         // <a href="http://wiki.openstreetmap.org/wiki/Zoom_levels">Zoom levels</a>
-        if (accuracy>-1  && geoPoint!=null) {
+        if (accuracy > -1 && geoPoint != null) {
             BoundingBoxE6 boundyBox = mapView.getBoundingBox();
-            int diagInM =  boundyBox.getDiagonalLengthInMeters();
-            if (accuracy>diagInM) {
+            int diagInM = boundyBox.getDiagonalLengthInMeters();
+            if (accuracy > diagInM) {
                 // compute zooem
                 // TODO accuracy/diagInM;
-                int wantedZoom = mapView.getZoomLevel() -1;
+                int wantedZoom = mapView.getZoomLevel() - 1;
                 // Send Zoom Request
                 Message msg = uiMapHandler.obtainMessage(UI_MAPMSG_MAP_ZOOM_MAX);
                 msg.obj = wantedZoom;
@@ -587,7 +639,7 @@ public abstract class OsmMapFragment extends Fragment {
         if (!myLocation.isMyLocationEnabled()) {
             myLocation.enableMyLocation(true);
             Log.d(TAG, "Ask centerOnMyPosition = do enableMyLocation");
-        } else{
+        } else {
             if (!myLocation.isFollowLocationEnabled()) {
                 myLocation.enableFollowLocation();
             } else {
@@ -607,7 +659,6 @@ public abstract class OsmMapFragment extends Fragment {
             });
         }
     }
-
 
 
     // ===========================================================
