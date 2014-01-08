@@ -115,14 +115,14 @@ public abstract class OsmMapFragment extends Fragment {
     // ===========================================================
 
 
-    public void initMap() {
+    public MapView initMap() {
         ActivityManager activityManager = (ActivityManager) getActivity().getSystemService(Context.ACTIVITY_SERVICE);
         // Map Controler
         this.mResourceProxy = new DefaultResourceProxyImpl(getActivity().getApplicationContext());
         ITileSource tileSource = getPreferenceMapViewTile();
         this.mapView = MapViewFactory.createOsmMapView(getActivity().getApplicationContext(), mResourceProxy, tileSource, activityManager);
         this.mapController = mapView.getController();
-
+        return  this.mapView;
 
     }
 
@@ -141,7 +141,7 @@ public abstract class OsmMapFragment extends Fragment {
         //  ITileSource tileSource = getPreferenceMapViewTile();
         //  mapView.setTileSource(tileSource);
         if (mapView != null) {
-            //  mapView.onResume();
+            // mapView.onResume();
         }
         // Overlay MyLocation
         if (myLocation != null) {
