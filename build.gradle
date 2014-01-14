@@ -2,7 +2,7 @@ allprojects {
     apply plugin: 'maven'
 
     group = 'eu.ttbox.android.osm'
-    version = '0.3.1'
+    version = '0.3.3'
 
     def isSnapshot = version.endsWith('-SNAPSHOT')
 
