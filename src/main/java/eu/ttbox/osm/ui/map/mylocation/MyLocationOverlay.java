@@ -45,6 +45,7 @@ import org.osmdroid.views.MapView.Projection;
 import org.osmdroid.views.overlay.Overlay;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -168,18 +169,30 @@ public class MyLocationOverlay extends Overlay implements SensorEventListener, L
     // Dirty Box for Post Invalidation
     private Rect dirtyRectForLocationAccuracy = new Rect();
     private Rect dirtyRectForLocationDirection = new Rect();
-    private Handler uiHandler = new Handler() {
+
+    private Handler uiHandler = new MyInnerHandler(this);
+
+    static class MyInnerHandler extends Handler{
+        WeakReference<MyLocationOverlay> mFrag;
+
+        MyInnerHandler(MyLocationOverlay aFragment) {
+            mFrag = new WeakReference<MyLocationOverlay>(aFragment);
+        }
+
+        @Override
         public void handleMessage(Message msg) {
+            MyLocationOverlay theFrag = mFrag.get();
             switch (msg.what) {
                 case UI_MSG_SET_ADDRESS:
-                    if (balloonView != null) {
+                    if (theFrag.balloonView != null) {
                         Address addr = (Address) msg.obj;
-                        balloonView.setAddress(addr);
+                        theFrag.balloonView.setAddress(addr);
                     }
                     break;
             }
         }
-    };
+    }
+
     private int dirtyLastAzimuth = 0;
     private MapCalloutView mMapCallouts[] = new MapCalloutView[2];
     // ===========================================================

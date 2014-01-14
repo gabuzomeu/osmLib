@@ -1,6 +1,7 @@
 package eu.ttbox.osm.tiles;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.ComponentCallbacks;
 import android.content.ComponentCallbacks2;
 import android.content.Context;
@@ -116,6 +117,7 @@ public class MapTileProviderTTbox extends MapTileProviderArrayTTbox //
 
 	}
 
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 	public class MemoryCacheCleanerCallback2 extends MemoryCacheCleanerCallback implements ComponentCallbacks2 {
 
 		@Override

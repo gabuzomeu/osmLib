@@ -26,6 +26,7 @@ import org.osmdroid.views.overlay.MinimapOverlay;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,42 +64,53 @@ public abstract class OsmMapFragment extends Fragment {
         return mapView != null;
     }
 
-    private Handler uiMapHandler = new Handler() {
+    private Handler uiMapHandler = new MyInnerHandler(this);
+
+    static class MyInnerHandler extends Handler{
+        WeakReference<OsmMapFragment> mFrag;
+
+        MyInnerHandler(OsmMapFragment aFragment) {
+            mFrag = new WeakReference<OsmMapFragment>(aFragment);
+        }
+
+        @Override
         public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if (isThreadRunnning()) {
+
+            OsmMapFragment theFrag = mFrag.get();
+            if (theFrag.isThreadRunnning()) {
                 switch (msg.what) {
                     case UI_MAPMSG_ANIMATE_TO_GEOPOINT: {
                         GeoPoint geoPoint = (GeoPoint) msg.obj;
                         if (geoPoint != null) {
-                            if (myLocation != null) {
-                                myLocation.disableFollowLocation();
+                            if (theFrag.myLocation != null) {
+                                theFrag.myLocation.disableFollowLocation();
                             }
                             Log.d(TAG, "uiHandler center to GeoPoint : " + geoPoint);
-                            mapController.setCenter(geoPoint);
+                            theFrag.mapController.setCenter(geoPoint);
+                            MapView mapView = theFrag.mapView;
                             int zoom = (mapView != null && mapView.getTileProvider() != null) ? mapView.getTileProvider().getMaximumZoomLevel() : -1;
                             if (zoom > 0) {
                                 Log.d(TAG, "uiHandler Set GeoPoint Zoom Level : " + zoom);
-                                mapController.setZoom(zoom);
+                                theFrag.mapController.setZoom(zoom);
                             }
                         }
                     }
                     break;
                     case UI_MAPMSG_MAP_ZOOM_MAX: {
-                        Integer msgObj = msg.obj != null ? (Integer) msg.obj : mapView.getTileProvider().getMaximumZoomLevel();
+                        Integer msgObj = msg.obj != null ? (Integer) msg.obj : theFrag.mapView.getTileProvider().getMaximumZoomLevel();
                         int maxZoom = msgObj.intValue();
                         Log.d(TAG, "uiHandler Set Zoom Level : " + maxZoom);
-                        mapController.setZoom(maxZoom);
+                        theFrag.mapController.setZoom(maxZoom);
                     }
                     break;
                     case UI_MAPMSG_TOAST: {
                         String msgToast = (String) msg.obj;
-                        Toast.makeText(getActivity(), msgToast, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(theFrag.getActivity(), msgToast, Toast.LENGTH_SHORT).show();
                     }
                     break;
                     case UI_MAPMSG_TOAST_ERROR: {
                         String msgToastError = (String) msg.obj;
-                        Toast.makeText(getActivity(), msgToastError, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(theFrag.getActivity(), msgToastError, Toast.LENGTH_SHORT).show();
                     }
                     break;
                     default: {
@@ -107,8 +119,7 @@ public abstract class OsmMapFragment extends Fragment {
                 }
             }
         }
-    };
-
+    }
 
     // ===========================================================
     // Constructor
