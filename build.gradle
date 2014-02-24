@@ -2,7 +2,7 @@ allprojects {
     apply plugin: 'maven'
 
     group = 'eu.ttbox.android.osm'
-    version = '0.3.3'
+    version = '0.4.0'
 
     def isSnapshot = version.endsWith('-SNAPSHOT')
 
@@ -54,7 +54,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.7.+'
+        classpath 'com.android.tools.build:gradle:0.8.+'
     }
 }
 
@@ -75,8 +75,8 @@ repositories {
 
 dependencies {
     //compile osmdroid
-    compile 'org.osmdroid:osmdroid-android:4.0@jar'
-    compile ('org.osmdroid:osmdroid-third-party:4.0@jar') { transitive = false }
+    compile 'org.osmdroid:osmdroid-android:4.1@jar'
+    compile ('org.osmdroid:osmdroid-third-party:4.1@jar') { transitive = false }
     compile 'org.slf4j:slf4j-android:1.6.1-RC1@jar'
 
 

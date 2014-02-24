@@ -38,14 +38,14 @@ public class MyAppTilesProviders {
 
     public static final OnlineTileSourceBase MAPQUESTOSM = new XYTileSource( //
             "MapquestOSM", ResourceProxy.string.mapquest_osm, 0, 18, 256, ".png", //
-            "http://otile1.mqcdn.com/tiles/1.0.0/osm/", //
+            new String[] {"http://otile1.mqcdn.com/tiles/1.0.0/osm/", //
             "http://otile2.mqcdn.com/tiles/1.0.0/osm/", //
             "http://otile3.mqcdn.com/tiles/1.0.0/osm/", //
-            "http://otile4.mqcdn.com/tiles/1.0.0/osm/");
+            "http://otile4.mqcdn.com/tiles/1.0.0/osm/" });
 
     public static final OnlineTileSourceBase PISTEMAP = new XYTileSource( //
             "OpenPisteMap", ResourceProxy.string.cyclemap, 0, 17, 256, ".png", //
-            "http://tiles2.openpistemap.org/landshaded/");
+            new String[] { "http://tiles2.openpistemap.org/landshaded/"});
     /**
      * {link
      * http://developers.cloudmade.com/wiki/vector-stream-server/Documentation}
@@ -83,7 +83,9 @@ public class MyAppTilesProviders {
     );
     public static final OnlineTileSourceBase CLOUDMADE_SSL_TILES = new CloudmadeTileSource(
             "CloudMadeSslTiles", ResourceProxy.string.cloudmade_standard, 0, 18, 256, ".png",
-            "https://ssl_tiles.cloudmade.com/%s/%d/%d/%d/%d/%d%s?token=%s");
+            new String[] {"https://ssl_tiles.cloudmade.com/%s/%d/%d/%d/%d/%d%s?token=%s" });
+
+
 
 
     public static void initTilesSource(Context context) {
