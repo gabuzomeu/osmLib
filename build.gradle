@@ -79,7 +79,7 @@ dependencies {
     compile ('org.osmdroid:osmdroid-third-party:4.1@jar') { transitive = false }
     compile 'org.slf4j:slf4j-android:1.6.1-RC1@jar'
 
-   // compile ('org.osmdroid.bonuspack:osmbonuspack:4.2.7@jar')
+    compile ('org.osmdroid.bonuspack:osmbonuspack:4.2.9@jar')
 
 
     compile "com.android.support:support-v13:19.0.+"
