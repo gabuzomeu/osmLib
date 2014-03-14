@@ -3,6 +3,7 @@ package eu.ttbox.osm.ui.map;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -133,6 +134,10 @@ public abstract class OsmMapFragment extends Fragment {
         ITileSource tileSource = getPreferenceMapViewTile();
         this.mapView = MapViewFactory.createOsmMapView(getActivity().getApplicationContext(), mResourceProxy, tileSource, activityManager);
         this.mapController = mapView.getController();
+        // Multi touch capabilities
+        if(!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH)) {
+            mapView.setBuiltInZoomControls(true);
+        }
         return  this.mapView;
 
     }
