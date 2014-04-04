@@ -1,5 +1,6 @@
 package eu.ttbox.osm.core;
 
+import android.app.AlarmManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.util.Log;
@@ -13,9 +14,46 @@ public class LocationUtils {
     private static final String TAG = "LocationUtils";
 
     private static final int LOCALISATION_SIGNIFICATY_NEWER_IN_MS = 1000 * 60 * 1;
+    private static final int MAX_DISTANCE = 75;
 
     private LocationUtils() {
     }
+
+
+
+    // ===========================================================
+    //   Static Utils
+    // ===========================================================
+
+
+
+    public static GeoPoint convertLocationAsGeoPoint(Location location) {
+        return GeoLocHelper.convertLocationAsGeoPoint(location);
+    }
+
+    // ===========================================================
+    //  Sensor
+    // ===========================================================
+
+
+    public static boolean isGpsLocationProviderIsEnable(LocationManager locationManage) {
+        return locationManage.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+
+    /** Checks whether two providers are the same */
+    private static boolean isSameProvider(String provider1, String provider2) {
+        if (provider1 == null) {
+            return provider2 == null;
+        }
+        return provider1.equals(provider2);
+    }
+
+
+    // ===========================================================
+    //   Last Loc V1
+    // ===========================================================
+
 
     public static Location getLastKnownLocation(LocationManager locationManager) {
         Location lastKnownLocation = null;
@@ -34,21 +72,11 @@ public class LocationUtils {
         return lastKnownLocation;
     }
 
-    public static GeoPoint getLastKnownLocationAsGeoPoint(LocationManager locationManager) {
-        Location lastKnownLocation = getLastKnownLocation(locationManager);
-        GeoPoint myGeoPoint = GeoLocHelper.convertLocationAsGeoPoint(lastKnownLocation);
-        return myGeoPoint;
-    }
-
-
-    public static boolean isGpsLocationProviderIsEnable(LocationManager locationManage) {
-        return locationManage.isProviderEnabled(LocationManager.GPS_PROVIDER);
-    }
 
     /**
      * Determines whether one Location reading is better than the current
      * Location fix
-     * 
+     *
      * @param location
      *            The new Location that you want to evaluate
      * @param currentBestLocation
@@ -84,7 +112,7 @@ public class LocationUtils {
         int accuracyDelta = (int) (location.getAccuracy() - currentBestLocation.getAccuracy());
         boolean isLessAccurate = accuracyDelta > 0;
         boolean isMoreAccurate = accuracyDelta < 0;
-        boolean isSignificantlyLessAccurate = accuracyDelta > 200;
+        boolean isSignificantlyLessAccurate = accuracyDelta > 200; // MAX_DISTANCE
 
         // Check if the old and new location are from the same provider
         boolean isFromSameProvider = isSameProvider(location.getProvider(), currentBestLocation.getProvider());
@@ -101,13 +129,6 @@ public class LocationUtils {
         return false;
     }
 
-    /** Checks whether two providers are the same */
-    private static boolean isSameProvider(String provider1, String provider2) {
-        if (provider1 == null) {
-            return provider2 == null;
-        }
-        return provider1.equals(provider2);
-    }
 
     public static boolean isLocationTooOld(Location location,  long nowInMs) {
         long timeDelta = nowInMs - location.getTime();
@@ -115,4 +136,83 @@ public class LocationUtils {
         Log.d(TAG, "isLocationTooOld for delta : " + timeDelta + " ==> " + isSignificantlyOlder);
         return isSignificantlyOlder;
     }
+
+    // ===========================================================
+    //   Last Loc V2
+    // ===========================================================
+
+
+    /**
+     * Returns the most accurate and timely previously detected location.
+     * Where the last result is beyond the specified maximum distance or latency.
+     * With minDistance = 75 m
+     * With minTime = Now - 15 minutes
+     * @param locationManager The location Manager Service
+     * @return The most accurate and / or timely previously detected location.
+     */
+    public static Location getLastBestLocation(LocationManager locationManager ) {
+        long minTime = System.currentTimeMillis()- AlarmManager.INTERVAL_FIFTEEN_MINUTES;
+        return getLastBestLocation(locationManager, MAX_DISTANCE, minTime);
+    }
+    /**
+     * Returns the most accurate and timely previously detected location.
+     * Where the last result is beyond the specified maximum distance or
+     * latency
+     * @param locationManager The location Manager Service
+     * @param minDistance Minimum distance before we require a location update.
+     * @param minTime Minimum time required between location updates.
+     * @return The most accurate and / or timely previously detected location.
+     */
+    public static Location getLastBestLocation(LocationManager locationManager, int minDistance, long minTime) {
+        Location bestResult = null;
+        float bestAccuracy = Float.MAX_VALUE;
+        long bestTime = Long.MAX_VALUE;
+
+        // Iterate through all the providers on the system, keeping
+        // note of the most accurate result within the acceptable time limit.
+        // If no result is found within maxTime, return the newest Location.
+        List<String> matchingProviders = locationManager.getAllProviders();
+        for (String provider: matchingProviders) {
+            Location location = locationManager.getLastKnownLocation(provider);
+            if (location != null) {
+                float accuracy = location.getAccuracy();
+                long time = location.getTime();
+
+                if ((time < minTime && accuracy < bestAccuracy)) {
+                    bestResult = location;
+                    bestAccuracy = accuracy;
+                    bestTime = time;
+                }
+                else if (time > minTime && bestAccuracy == Float.MAX_VALUE && time < bestTime) {
+                    bestResult = location;
+                    bestTime = time;
+                }
+            }
+        }
+
+
+        return bestResult;
+    }
+
+    public static GeoPoint getLastBestLocationAsGeoPoint(LocationManager locationManager, int minDistance, long minTime) {
+        Location lastKnownLocation = getLastBestLocation(locationManager);
+        GeoPoint myGeoPoint = GeoLocHelper.convertLocationAsGeoPoint(lastKnownLocation);
+        return myGeoPoint;
+    }
+
+
+
+    public static GeoPoint getLastKnownLocationAsGeoPoint(LocationManager locationManager) {
+        Location lastKnownLocation = getLastKnownLocation(locationManager);
+        GeoPoint myGeoPoint = GeoLocHelper.convertLocationAsGeoPoint(lastKnownLocation);
+        return myGeoPoint;
+    }
+
+
+    // ===========================================================
+    //   Other
+    // ===========================================================
+
+
+
 }

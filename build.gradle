@@ -74,6 +74,9 @@ repositories {
 //List osmdroid = ['org.osmdroid:osmdroid-android:4.0@jar', 'org.osmdroid:osmdroid-third-party:4.0@jar', 'org.slf4j:slf4j-android:1.6.1-RC1@jar']
 
 dependencies {
+
+   // testCompile 'junit:junit:4.11'
+
     //compile osmdroid
     compile 'org.osmdroid:osmdroid-android:4.1@jar'
     compile ('org.osmdroid:osmdroid-third-party:4.1@jar') { transitive = false }
