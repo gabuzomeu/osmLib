@@ -54,7 +54,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.9.+'
+        classpath 'com.android.tools.build:gradle:0.10.+'
     }
 }
 
@@ -75,7 +75,7 @@ repositories {
 
 dependencies {
 
-   // testCompile 'junit:junit:4.11'
+   // testCompile 'junit:junit:4.11@jar'
 
     //compile osmdroid
     compile 'org.osmdroid:osmdroid-android:4.1@jar'

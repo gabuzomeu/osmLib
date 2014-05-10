@@ -127,6 +127,10 @@ public abstract class OsmMapFragment extends Fragment {
     // ===========================================================
 
 
+    protected OsmMapFragment() {
+        super();
+    }
+
     public MapView initMap() {
         ActivityManager activityManager = (ActivityManager) getActivity().getSystemService(Context.ACTIVITY_SERVICE);
         // Map Controler
