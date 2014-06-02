@@ -2,7 +2,7 @@ allprojects {
     apply plugin: 'maven'
 
     group = 'eu.ttbox.android.osm'
-    version = '0.4.2'
+    version = '0.4.3'
 
     def isSnapshot = version.endsWith('-SNAPSHOT')
 
@@ -97,7 +97,7 @@ android {
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 19
+        targetSdkVersion 18
     }
 }
 
