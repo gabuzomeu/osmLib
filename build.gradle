@@ -54,7 +54,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.10.+'
+        classpath 'com.android.tools.build:gradle:0.11.+'
     }
 }
 
@@ -86,12 +86,12 @@ dependencies {
 
 
     compile "com.android.support:support-v13:19.0.+"
-    compile('com.squareup.okhttp:okhttp:1.2.+@jar') { transitive = true }
+    compile('com.squareup.okhttp:okhttp:1.2.1@jar') { transitive = true }
 }
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.3"
+    buildToolsVersion "19.1"
 
 
 
